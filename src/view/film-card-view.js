@@ -1,10 +1,4 @@
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-
 import { formatFilmDuration, formatReleaseYear, formatTotalRating, formatShortDescription } from '../utils/format.js';
-
-
-dayjs.extend(duration);
 
 
 const getControlActiveClass = (parameter) => (
