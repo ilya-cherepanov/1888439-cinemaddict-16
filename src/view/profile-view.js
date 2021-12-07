@@ -27,7 +27,7 @@ const getUserRankName = (watchedFilmsCount) => {
 
 
 const getUserRank = (films) => {
-  const watchedFilmsCount = films.reduce((count, film) => count + Number(film.userDetails.alreadyWatched), 0);
+  const watchedFilmsCount = films.reduce((count, film) => count + Number(film['user_details']['already_watched']), 0);
 
   if (watchedFilmsCount === 0) {
     return '';

@@ -77,21 +77,31 @@ const AGE_RATINGS = [
   18,
 ];
 
-const MIN_RATING = 1;
-const MAX_RATING = 10;
-const RATING_PRECISION = 1;
+const Rating = {
+  MIN: 1,
+  MAX: 10,
+  PRECISION: 1,
+};
 
-const MIN_RUNTIME = 10;
-const MAX_RUNTIME = 240;
+const Runtime = {
+  MIN: 10,
+  MAX: 240,
+};
 
-const MIN_GENRES_COUNT = 1;
-const MAX_GENRES_COUNT = 3;
+const GenresCount = {
+  MIN: 1,
+  MAX: 3,
+};
 
-const MIN_WRITERS = 1;
-const MAX_WRITERS = 3;
+const Writers = {
+  MIN: 1,
+  MAX: 3,
+};
 
-const MIN_ACTORS = 1;
-const MAX_ACTORS = 3;
+const Actors = {
+  MIN: 1,
+  MAX: 3,
+};
 
 const MAX_COMMENTS_PER_FILM = 5;
 
@@ -102,14 +112,14 @@ dayjs.extend(duration);
 const createDate = (minDaysAgo = 0, maxDaysAgo = 35000) => (
   dayjs()
     .subtract(dayjs.duration({ days: getRandomInt(minDaysAgo, maxDaysAgo) }))
-    .toDate()
+    .toISOString()
 );
 
 
 const createCommentDate = (minSecondsAgo = 0, maxSecondsAgo = 1000000) => (
   dayjs()
     .subtract(dayjs.duration({ seconds: getRandomInt(minSecondsAgo, maxSecondsAgo) }))
-    .toDate()
+    .toISOString()
 );
 
 
@@ -136,32 +146,34 @@ const createOneFilm = (id, comments) => {
 
   const userDetails = {
     watchlist: getRandomBool(),
-    alreadyWatched: getRandomBool(),
+    ['already_watched']: getRandomBool(),
     favorite: getRandomBool(),
   };
 
   if (userDetails.alreadyWatched) {
-    userDetails.watchingDate = createDate(0, 10000);
+    userDetails['watching_date'] = createDate(0, 10000);
   }
 
   return {
     id,
-    title,
-    alternativeTitle: title,
-    totalRating: getRandomFixedPoint(MIN_RATING, MAX_RATING, RATING_PRECISION),
-    poster: getRandomPoster(),
-    ageRating: getOneRandomArrayElement(AGE_RATINGS),
-    director: getOneRandomArrayElement(NAMES),
-    writers: getRandomArrayElements(NAMES, getRandomInt(MIN_WRITERS, MAX_WRITERS)),
-    actors: getRandomArrayElements(NAMES, getRandomInt(MIN_ACTORS, MAX_ACTORS)),
-    release: {
-      date: createDate(),
-      country: getOneRandomArrayElement(COUNTRIES),
+    ['film_info']: {
+      title,
+      ['alternative_title']: title,
+      ['total_rating']: getRandomFixedPoint(Rating.MIN, Rating.MAX, Rating.PRECISION),
+      poster: getRandomPoster(),
+      ['age_rating']: getOneRandomArrayElement(AGE_RATINGS),
+      director: getOneRandomArrayElement(NAMES),
+      writers: getRandomArrayElements(NAMES, getRandomInt(Writers.MIN, Writers.MAX)),
+      actors: getRandomArrayElements(NAMES, getRandomInt(Actors.MIN, Actors.MAX)),
+      release: {
+        date: createDate(),
+        ['release_country']: getOneRandomArrayElement(COUNTRIES),
+      },
+      runtime: getRandomInt(Runtime.MIN, Runtime.MAX),
+      genre: getRandomArrayElements(GENRES, getRandomInt(GenresCount.MIN, GenresCount.MAX)),
+      description: getRandomText(),
     },
-    runtime: getRandomInt(MIN_RUNTIME, MAX_RUNTIME),
-    genre: getRandomArrayElements(GENRES, getRandomInt(MIN_GENRES_COUNT, MAX_GENRES_COUNT)),
-    description: getRandomText(),
-    userDetails,
+    ['user_details']: userDetails,
     comments: comments.map((comment) => comment.id)
   };
 };
@@ -210,9 +222,9 @@ const createFilters = (films) => {
   };
 
   for (const film of films) {
-    filters.watchlist += Number(film.userDetails.watchlist);
-    filters.history += Number(film.userDetails.alreadyWatched);
-    filters.favorites += Number(film.userDetails.favorite);
+    filters.watchlist += Number(film['user_details'].watchlist);
+    filters.history += Number(film['user_details']['already_watched']);
+    filters.favorites += Number(film['user_details'].favorite);
   }
 
   return filters;

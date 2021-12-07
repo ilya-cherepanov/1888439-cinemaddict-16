@@ -5,10 +5,10 @@ import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
 
-const formatFilmDuration = (film) => {
-  const durationString = dayjs.duration(film.runtime, 'minute').format('H[h] m[m]');
+const formatFilmRuntime = (filmRuntime) => {
+  const runtimeString = dayjs.duration(filmRuntime, 'minute').format('H[h] m[m]');
 
-  return durationString.startsWith('0h') ? durationString.substring(3) : durationString;
+  return runtimeString.startsWith('0h') ? runtimeString.substring(3) : runtimeString;
 };
 
 
@@ -44,7 +44,7 @@ const formatFilmsCount = (count, groupBy = 3) => {
 };
 
 export {
-  formatFilmDuration,
+  formatFilmRuntime,
   formatTotalRating,
   formatCommentDate,
   formatReleaseDate,
