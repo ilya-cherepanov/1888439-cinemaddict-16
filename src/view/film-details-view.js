@@ -1,4 +1,10 @@
-import { formatTotalRating, formatFilmDuration, formatReleaseDate, formatCommentDate } from '../utils/format.js';
+import {
+  formatTotalRating,
+  formatFilmRuntime,
+  formatReleaseDate,
+  formatCommentDate
+} from '../utils/format.js';
+import AbstractView from './abstract-view.js';
 
 
 const getFilmButtonActiveClass = (status) => (
@@ -37,8 +43,11 @@ const createCommentsList = (comments) => {
 };
 
 
-const createFilmDetailsTemplate = (film, comments) => (
-  `<section class="film-details">
+const createFilmDetailsTemplate = (film, comments) => {
+  const filmInfo = film['film_info'];
+  const userDetails = film['user_details'];
+
+  return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
@@ -46,66 +55,66 @@ const createFilmDetailsTemplate = (film, comments) => (
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="${film.poster}" alt="Poster of ${film.title}">
+            <img class="film-details__poster-img" src="${filmInfo.poster}" alt="Poster of ${filmInfo.title}">
 
-            <p class="film-details__age">${film.ageRating}+</p>
+            <p class="film-details__age">${filmInfo['age_rating']}+</p>
           </div>
 
           <div class="film-details__info">
             <div class="film-details__info-head">
               <div class="film-details__title-wrap">
-                <h3 class="film-details__title">${film.title}</h3>
-                <p class="film-details__title-original">Original: ${film.alternativeTitle}</p>
+                <h3 class="film-details__title">${filmInfo.title}</h3>
+                <p class="film-details__title-original">Original: ${filmInfo['alternative_title']}</p>
               </div>
 
               <div class="film-details__rating">
-                <p class="film-details__total-rating">${formatTotalRating(film.totalRating)}</p>
+                <p class="film-details__total-rating">${formatTotalRating(filmInfo['total_rating'])}</p>
               </div>
             </div>
 
             <table class="film-details__table">
               <tr class="film-details__row">
                 <td class="film-details__term">Director</td>
-                <td class="film-details__cell">${film.director}</td>
+                <td class="film-details__cell">${filmInfo.director}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>
-                <td class="film-details__cell">${film.writers.join(', ')}</td>
+                <td class="film-details__cell">${filmInfo.writers.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Actors</td>
-                <td class="film-details__cell">${film.actors.join(', ')}</td>
+                <td class="film-details__cell">${filmInfo.actors.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${formatReleaseDate(film.release.date)}</td>
+                <td class="film-details__cell">${formatReleaseDate(filmInfo.release.date)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${formatFilmDuration(film)}</td>
+                <td class="film-details__cell">${formatFilmRuntime(filmInfo.runtime)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
-                <td class="film-details__cell">${film.release.country}</td>
+                <td class="film-details__cell">${filmInfo.release['release_country']}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Genres</td>
                 <td class="film-details__cell">
-                  ${createGenresTemplate(film.genre)}
+                  ${createGenresTemplate(filmInfo.genre)}
                 </td>
               </tr>
             </table>
 
             <p class="film-details__film-description">
-              ${film.description}
+              ${filmInfo.description}
             </p>
           </div>
         </div>
 
         <section class="film-details__controls">
-          <button type="button" class="film-details__control-button film-details__control-button--watchlist ${getFilmButtonActiveClass(film.userDetails.watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
-          <button type="button" class="film-details__control-button film-details__control-button--watched ${getFilmButtonActiveClass(film.userDetails.alreadyWatched)}" id="watched" name="watched">Already watched</button>
-          <button type="button" class="film-details__control-button film-details__control-button--favorite ${getFilmButtonActiveClass(film.userDetails.favorite)}" id="favorite" name="favorite">Add to favorites</button>
+          <button type="button" class="film-details__control-button film-details__control-button--watchlist ${getFilmButtonActiveClass(userDetails.watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
+          <button type="button" class="film-details__control-button film-details__control-button--watched ${getFilmButtonActiveClass(userDetails['already_watched'])}" id="watched" name="watched">Already watched</button>
+          <button type="button" class="film-details__control-button film-details__control-button--favorite ${getFilmButtonActiveClass(userDetails.favorite)}" id="favorite" name="favorite">Add to favorites</button>
         </section>
       </div>
 
@@ -149,8 +158,32 @@ const createFilmDetailsTemplate = (film, comments) => (
         </section>
       </div>
     </form>
-  </section>`
-);
+  </section>`;
+};
 
 
-export { createFilmDetailsTemplate };
+export default class FilmDetailsView extends AbstractView {
+  #film = null;
+  #comments = null;
+
+  constructor(film, comments) {
+    super();
+
+    this.#film = film;
+    this.#comments = comments;
+
+    this.element
+      .querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#clickCloseHandler);
+  }
+
+  get template() {
+    return createFilmDetailsTemplate(this.#film, this.#comments);
+  }
+
+  #clickCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.removeElement();
+    document.body.classList.remove('hide-overflow');
+  };
+}

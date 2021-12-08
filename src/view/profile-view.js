@@ -1,3 +1,5 @@
+import AbstractView from './abstract-view.js';
+
 const UserRanks = {
   NOVICE: {
     RANK: 'Novice',
@@ -27,7 +29,7 @@ const getUserRankName = (watchedFilmsCount) => {
 
 
 const getUserRank = (films) => {
-  const watchedFilmsCount = films.reduce((count, film) => count + Number(film.userDetails.alreadyWatched), 0);
+  const watchedFilmsCount = films.reduce((count, film) => count + Number(film['user_details']['already_watched']), 0);
 
   if (watchedFilmsCount === 0) {
     return '';
@@ -45,4 +47,16 @@ const createProfileTemplate = (films) => (
 );
 
 
-export { createProfileTemplate };
+export default class ProfileView extends AbstractView {
+  #films = null;
+
+  constructor(films) {
+    super();
+
+    this.#films = films;
+  }
+
+  get template() {
+    return createProfileTemplate(this.#films);
+  }
+}
