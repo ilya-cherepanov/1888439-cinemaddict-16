@@ -174,7 +174,7 @@ const createOneFilm = (id, comments) => {
       description: getRandomText(),
     },
     ['user_details']: userDetails,
-    comments: comments.map((comment) => comment.id)
+    comments
   };
 };
 

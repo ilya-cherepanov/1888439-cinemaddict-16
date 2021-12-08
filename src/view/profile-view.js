@@ -1,3 +1,5 @@
+import AbstractView from './abstract-view.js';
+
 const UserRanks = {
   NOVICE: {
     RANK: 'Novice',
@@ -45,4 +47,16 @@ const createProfileTemplate = (films) => (
 );
 
 
-export { createProfileTemplate };
+export default class ProfileView extends AbstractView {
+  #films = null;
+
+  constructor(films) {
+    super();
+
+    this.#films = films;
+  }
+
+  get template() {
+    return createProfileTemplate(this.#films);
+  }
+}

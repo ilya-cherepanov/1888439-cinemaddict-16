@@ -1,3 +1,3 @@
-import { renderMainPage } from './render.js';
+import { displayMainPage } from './page.js';
 
-renderMainPage();
+displayMainPage();

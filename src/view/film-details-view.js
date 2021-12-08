@@ -4,6 +4,7 @@ import {
   formatReleaseDate,
   formatCommentDate
 } from '../utils/format.js';
+import AbstractView from './abstract-view.js';
 
 
 const getFilmButtonActiveClass = (status) => (
@@ -161,4 +162,28 @@ const createFilmDetailsTemplate = (film, comments) => {
 };
 
 
-export { createFilmDetailsTemplate };
+export default class FilmDetailsView extends AbstractView {
+  #film = null;
+  #comments = null;
+
+  constructor(film, comments) {
+    super();
+
+    this.#film = film;
+    this.#comments = comments;
+
+    this.element
+      .querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#clickCloseHandler);
+  }
+
+  get template() {
+    return createFilmDetailsTemplate(this.#film, this.#comments);
+  }
+
+  #clickCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.removeElement();
+    document.body.classList.remove('hide-overflow');
+  };
+}
