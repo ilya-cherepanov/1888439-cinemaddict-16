@@ -32,6 +32,10 @@ const displayFilms = (step = 0) => {
 
 
 const displayFilmsList = () => {
+  const mainNavigation = document.querySelector('.main-navigation');
+  const sortView = new SortView();
+  render(mainNavigation, sortView.element, RenderPosition.AFTEREND);
+
   const filmListElement = document.querySelector('.films-list');
 
   const isFilmListEnded = displayFilms();
@@ -59,14 +63,11 @@ const displayMainPage = () => {
   const profileView = new ProfileView(FILMS);
   render(headerElement, profileView.element, RenderPosition.BEFOREEND);
 
-  const filters = createFilters(FILMS);
   const mainElement = document.querySelector('.main');
 
+  const filters = createFilters(FILMS);
   const navigationView = new NavigationView(filters);
   render(mainElement, navigationView.element, RenderPosition.BEFOREEND);
-
-  const sortView = new SortView();
-  render(mainElement, sortView.element, RenderPosition.BEFOREEND);
 
   const filmsView = FILMS.length > 0 ? new FilmsView() : new EmptyFilmsView(FilmsFilterType.ALL);
   render(mainElement, filmsView.element, RenderPosition.BEFOREEND);
