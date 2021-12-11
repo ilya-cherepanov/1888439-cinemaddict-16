@@ -1,12 +1,14 @@
-import ProfileView from './view/profile-view.js';
-import NavigationView from './view/navigation-view.js';
-import SortView from './view/sort-view.js';
-import FilmsView from './view/films-view.js';
-import FilmCardView from './view/film-card-view.js';
-import ShowMoreView from './view/show-more-view.js';
-import StaticticsView from './view/statistics-view.js';
+import ProfileView from './view/profile/profile-view.js';
+import NavigationView from './view/navigation/navigation-view.js';
+import SortView from './view/sort/sort-view.js';
+import FilmsView from './view/films/films-view.js';
+import FilmCardView from './view/film-card/film-card-view.js';
+import ShowMoreView from './view/show-more/show-more-view.js';
+import StaticticsView from './view/statistics/statistics-view.js';
+import EmptyFilmsView from './view/empty-films/empty-films-view.js';
 import { createFilms, createFilters } from './mocking.js';
 import { RenderPosition, render } from './utils/render.js';
+import { FilmsFilterType } from './constants.js';
 
 
 const FILMS_COUNT = 23;
@@ -24,29 +26,17 @@ const displayFilms = (step = 0) => {
     render(filmsListContainer, filmCradView.element, RenderPosition.BEFOREEND);
   }
 
-  const filmListEnded = i >= FILMS.length;
-  return filmListEnded;
+  const isFilmListEnded = i >= FILMS.length;
+  return isFilmListEnded;
 };
 
 
-const displayMainPage = () => {
-  const headerElement = document.querySelector('.header');
-  const profileView = new ProfileView(FILMS);
-  render(headerElement, profileView.element, RenderPosition.BEFOREEND);
-
-  const filters = createFilters(FILMS);
-  const mainElement = document.querySelector('.main');
-
-  const navigationView = new NavigationView(filters);
-  render(mainElement, navigationView.element, RenderPosition.BEFOREEND);
-
+const displayFilmsList = () => {
+  const mainNavigation = document.querySelector('.main-navigation');
   const sortView = new SortView();
-  render(mainElement, sortView.element, RenderPosition.BEFOREEND);
+  render(mainNavigation, sortView.element, RenderPosition.AFTEREND);
 
-  const filmsView = new FilmsView();
-  render(mainElement, filmsView.element, RenderPosition.BEFOREEND);
-
-  const filmListElement = filmsView.element.querySelector('.films-list');
+  const filmListElement = document.querySelector('.films-list');
 
   const isFilmListEnded = displayFilms();
 
@@ -64,6 +54,25 @@ const displayMainPage = () => {
         step += 1;
       }
     });
+  }
+};
+
+
+const displayMainPage = () => {
+  const headerElement = document.querySelector('.header');
+  const profileView = new ProfileView(FILMS);
+  render(headerElement, profileView.element, RenderPosition.BEFOREEND);
+
+  const mainElement = document.querySelector('.main');
+
+  const filters = createFilters(FILMS);
+  const navigationView = new NavigationView(filters);
+  render(mainElement, navigationView.element, RenderPosition.BEFOREEND);
+
+  const filmsView = FILMS.length > 0 ? new FilmsView() : new EmptyFilmsView(FilmsFilterType.ALL);
+  render(mainElement, filmsView.element, RenderPosition.BEFOREEND);
+  if (filmsView instanceof FilmsView) {
+    displayFilmsList();
   }
 
   const footerStatisticsElement = document.querySelector('.footer__statistics');

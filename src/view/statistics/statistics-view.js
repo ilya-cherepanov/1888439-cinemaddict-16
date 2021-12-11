@@ -1,8 +1,5 @@
-import { formatFilmsCount } from '../utils/format.js';
-import AbstractView from './abstract-view.js';
-
-
-const createStatisticsTemplate = (filmsCount) => `<p>${formatFilmsCount(filmsCount)} movies inside</p>`;
+import AbstractView from '../abstract-view.js';
+import { createStatisticsTemplate } from './statistics-view.tmpl.js';
 
 
 export default class StatisticsView extends AbstractView {

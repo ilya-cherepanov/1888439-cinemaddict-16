@@ -146,34 +146,34 @@ const createOneFilm = (id, comments) => {
 
   const userDetails = {
     watchlist: getRandomBool(),
-    ['already_watched']: getRandomBool(),
+    alreadyWatched: getRandomBool(),
     favorite: getRandomBool(),
   };
 
   if (userDetails.alreadyWatched) {
-    userDetails['watching_date'] = createDate(0, 10000);
+    userDetails.watchingDate = createDate(0, 10000);
   }
 
   return {
     id,
-    ['film_info']: {
+    filmInfo: {
       title,
-      ['alternative_title']: title,
-      ['total_rating']: getRandomFixedPoint(Rating.MIN, Rating.MAX, Rating.PRECISION),
+      alternativeTitle: title,
+      totalRating: getRandomFixedPoint(Rating.MIN, Rating.MAX, Rating.PRECISION),
       poster: getRandomPoster(),
-      ['age_rating']: getOneRandomArrayElement(AGE_RATINGS),
+      ageRating: getOneRandomArrayElement(AGE_RATINGS),
       director: getOneRandomArrayElement(NAMES),
       writers: getRandomArrayElements(NAMES, getRandomInt(Writers.MIN, Writers.MAX)),
       actors: getRandomArrayElements(NAMES, getRandomInt(Actors.MIN, Actors.MAX)),
       release: {
         date: createDate(),
-        ['release_country']: getOneRandomArrayElement(COUNTRIES),
+        country: getOneRandomArrayElement(COUNTRIES),
       },
       runtime: getRandomInt(Runtime.MIN, Runtime.MAX),
       genre: getRandomArrayElements(GENRES, getRandomInt(GenresCount.MIN, GenresCount.MAX)),
       description: getRandomText(),
     },
-    ['user_details']: userDetails,
+    userDetails,
     comments
   };
 };
@@ -222,9 +222,9 @@ const createFilters = (films) => {
   };
 
   for (const film of films) {
-    filters.watchlist += Number(film['user_details'].watchlist);
-    filters.history += Number(film['user_details']['already_watched']);
-    filters.favorites += Number(film['user_details'].favorite);
+    filters.watchlist += Number(film.userDetails.watchlist);
+    filters.history += Number(film.userDetails.alreadyWatched);
+    filters.favorites += Number(film.userDetails.favorite);
   }
 
   return filters;
