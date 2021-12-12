@@ -27,6 +27,6 @@ export default class FilmCardView extends AbstractView {
     const comments = createComments(this.#film.comments);
     const filmDetailsView = new FilmDetailsView(this.#film, comments);
     document.body.classList.add('hide-overflow');
-    render(document.body, filmDetailsView.element, RenderPosition.BEFOREEND);
+    render(document.body, filmDetailsView, RenderPosition.BEFOREEND);
   };
 }

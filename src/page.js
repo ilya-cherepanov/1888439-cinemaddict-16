@@ -23,7 +23,7 @@ const displayFilms = (step = 0) => {
   let i = initialIndex;
   for (; i < Math.min((initialIndex + Films.COUNT_PER_STEP), FILMS.length); ++i) {
     const filmCradView = new FilmCardView(FILMS[i]);
-    render(filmsListContainer, filmCradView.element, RenderPosition.BEFOREEND);
+    render(filmsListContainer, filmCradView, RenderPosition.BEFOREEND);
   }
 
   const isFilmListEnded = i >= FILMS.length;
@@ -33,14 +33,14 @@ const displayFilms = (step = 0) => {
 
 const displayFilmsListExtra = (containerElement, filmsListExtraType) => {
   const filmsListExtraView = new FilmsListExtraView(filmsListExtraType);
-  render(containerElement, filmsListExtraView.element, RenderPosition.BEFOREEND);
+  render(containerElement, filmsListExtraView, RenderPosition.BEFOREEND);
 
   const sortedFilms = sortFilms(FILMS, getComparer(filmsListExtraType));
 
   const filmsListContainer = filmsListExtraView.element.querySelector('.films-list__container');
   for (const film of sortedFilms) {
     const filmCradView = new FilmCardView(film);
-    render(filmsListContainer, filmCradView.element, RenderPosition.BEFOREEND);
+    render(filmsListContainer, filmCradView, RenderPosition.BEFOREEND);
   }
 };
 
@@ -48,7 +48,7 @@ const displayFilmsListExtra = (containerElement, filmsListExtraType) => {
 const displayFilmsList = () => {
   const mainNavigation = document.querySelector('.main-navigation');
   const sortView = new SortView();
-  render(mainNavigation, sortView.element, RenderPosition.AFTEREND);
+  render(mainNavigation, sortView, RenderPosition.AFTEREND);
 
   const filmListElement = document.querySelector('.films-list');
 
@@ -56,7 +56,7 @@ const displayFilmsList = () => {
 
   if (!isFilmListEnded) {
     const showMoreView = new ShowMoreView();
-    render(filmListElement, showMoreView.element, RenderPosition.BEFOREEND);
+    render(filmListElement, showMoreView, RenderPosition.BEFOREEND);
 
     let step = 1;
     showMoreView.setClickHandler(() => {
@@ -79,23 +79,23 @@ const displayFilmsList = () => {
 const displayMainPage = () => {
   const headerElement = document.querySelector('.header');
   const profileView = new ProfileView(FILMS);
-  render(headerElement, profileView.element, RenderPosition.BEFOREEND);
+  render(headerElement, profileView, RenderPosition.BEFOREEND);
 
   const mainElement = document.querySelector('.main');
 
   const filters = createFilters(FILMS);
   const navigationView = new NavigationView(filters);
-  render(mainElement, navigationView.element, RenderPosition.BEFOREEND);
+  render(mainElement, navigationView, RenderPosition.BEFOREEND);
 
   const filmsView = FILMS.length > 0 ? new FilmsView() : new EmptyFilmsView(FilmsFilterType.ALL);
-  render(mainElement, filmsView.element, RenderPosition.BEFOREEND);
+  render(mainElement, filmsView, RenderPosition.BEFOREEND);
   if (filmsView instanceof FilmsView) {
     displayFilmsList();
   }
 
   const footerStatisticsElement = document.querySelector('.footer__statistics');
   const statisticsView = new StaticticsView(FILMS.length);
-  render(footerStatisticsElement, statisticsView.element, RenderPosition.BEFOREEND);
+  render(footerStatisticsElement, statisticsView, RenderPosition.BEFOREEND);
 };
 
 
