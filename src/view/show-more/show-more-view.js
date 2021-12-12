@@ -3,10 +3,6 @@ import { createShowMoreTemplate } from './show-more-view.tmpl.js';
 
 
 export default class ShowMoreView extends AbstractView {
-  constructor() {
-    super();
-  }
-
   get template() {
     return createShowMoreTemplate();
   }

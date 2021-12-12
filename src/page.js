@@ -6,28 +6,42 @@ import FilmCardView from './view/film-card/film-card-view.js';
 import ShowMoreView from './view/show-more/show-more-view.js';
 import StaticticsView from './view/statistics/statistics-view.js';
 import EmptyFilmsView from './view/empty-films/empty-films-view.js';
+import FilmsListExtraView from './view/films-list-extra/films-list-extra.js';
 import { createFilms, createFilters } from './mocking.js';
 import { RenderPosition, render } from './utils/render.js';
-import { FilmsFilterType } from './constants.js';
+import { FilmsFilterType, FilmsListExtraType, Films } from './constants.js';
+import { sortFilms, getComparer } from './utils/sorting.js';
 
 
-const FILMS_COUNT = 23;
-const FILMS_PER_STEP = 5;
-const FILMS = createFilms(FILMS_COUNT);
+const FILMS = createFilms(Films.COUNT);
 
 
 const displayFilms = (step = 0) => {
   const filmsListContainer = document.querySelector('.films-list__container');
-  const initialIndex = FILMS_PER_STEP * step;
+  const initialIndex = Films.COUNT_PER_STEP * step;
 
   let i = initialIndex;
-  for (; i < Math.min((initialIndex + FILMS_PER_STEP), FILMS.length); ++i) {
+  for (; i < Math.min((initialIndex + Films.COUNT_PER_STEP), FILMS.length); ++i) {
     const filmCradView = new FilmCardView(FILMS[i]);
     render(filmsListContainer, filmCradView.element, RenderPosition.BEFOREEND);
   }
 
   const isFilmListEnded = i >= FILMS.length;
   return isFilmListEnded;
+};
+
+
+const displayFilmsListExtra = (containerElement, filmsListExtraType) => {
+  const filmsListExtraView = new FilmsListExtraView(filmsListExtraType);
+  render(containerElement, filmsListExtraView.element, RenderPosition.BEFOREEND);
+
+  const sortedFilms = sortFilms(FILMS, getComparer(filmsListExtraType));
+
+  const filmsListContainer = filmsListExtraView.element.querySelector('.films-list__container');
+  for (const film of sortedFilms) {
+    const filmCradView = new FilmCardView(film);
+    render(filmsListContainer, filmCradView.element, RenderPosition.BEFOREEND);
+  }
 };
 
 
@@ -55,6 +69,10 @@ const displayFilmsList = () => {
       }
     });
   }
+
+  const filmsElement = filmListElement.parentElement;
+  displayFilmsListExtra(filmsElement, FilmsListExtraType.TOP_RATED);
+  displayFilmsListExtra(filmsElement, FilmsListExtraType.MOST_COMMENTED);
 };
 
 

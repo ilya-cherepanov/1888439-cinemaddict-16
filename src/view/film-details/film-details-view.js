@@ -1,11 +1,6 @@
 import AbstractView from '../abstract-view.js';
 import { createFilmDetailsTemplate } from './film-details-view.tmpl.js';
-
-
-const ESC_KEY_CODE = 27;
-
-
-const isEscKey = (evt) => evt.keyCode === ESC_KEY_CODE;
+import { isEscKey } from '../../utils/checking.js';
 
 
 export default class FilmDetailsView extends AbstractView {
