@@ -6,4 +6,7 @@ const KeyCode = {
 const isEscKey = (evt) => evt.keyCode === KeyCode.ESC;
 
 
-export { isEscKey };
+const isListEnded = (list, step = 0, perStep = 0) => list.length <= step * perStep;
+
+
+export { isEscKey, isListEnded };

@@ -1,8 +1,5 @@
 import AbstractView from '../abstract-view.js';
 import { createFilmCardTemplate } from './film-card-view.tmpl.js';
-import FilmDetailsView from '../film-details/film-details-view.js';
-import { createComments } from '../../mocking.js';
-import { RenderPosition, render } from '../../utils/render.js';
 
 
 export default class FilmCardView extends AbstractView {
@@ -12,21 +9,48 @@ export default class FilmCardView extends AbstractView {
     super();
 
     this.#film = film;
-
-    this.element
-      .querySelector('.film-card__link')
-      .addEventListener('click', this.#clickDetailsHandler);
   }
 
   get template() {
     return createFilmCardTemplate(this.#film);
   }
 
+  setClickOpenDetails = (handler) => {
+    this._callbacks.clickOpenDetails = handler;
+
+    this.element
+      .querySelector('.film-card__link')
+      .addEventListener('click', this.#clickDetailsHandler);
+  }
+
+  setClickControlsHandler = (handler) => {
+    this._callbacks.clickControl = handler;
+
+    const controls = this.element.querySelectorAll('.film-card__controls-item');
+    controls.forEach(
+      (control) => control.addEventListener('click', this.#clickControlHandler)
+    );
+  }
+
+  #clickControlHandler = (evt) => {
+    evt.preventDefault();
+    const { target } = evt;
+
+    const filmUpdate = {...this.#film};
+    if (target.classList.contains('film-card__controls-item--favorite')) {
+      filmUpdate.userDetails.favorite = !this.#film.userDetails.favorite;
+    } else if (target.classList.contains('film-card__controls-item--add-to-watchlist')) {
+      filmUpdate.userDetails.watchlist = !this.#film.userDetails.watchlist;
+    } else if (target.classList.contains('film-card__controls-item--mark-as-watched')) {
+      filmUpdate.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
+    }
+
+    this._callbacks.clickControl(filmUpdate);
+  }
+
   #clickDetailsHandler = (evt) => {
     evt.preventDefault();
-    const comments = createComments(this.#film.comments);
-    const filmDetailsView = new FilmDetailsView(this.#film, comments);
-    document.body.classList.add('hide-overflow');
-    render(document.body, filmDetailsView, RenderPosition.BEFOREEND);
-  };
+
+    this._callbacks.clickOpenDetails(this.#film);
+  }
 }
