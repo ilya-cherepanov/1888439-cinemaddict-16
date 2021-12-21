@@ -1,3 +1,6 @@
-import { displayMainPage } from './page.js';
+import MoviePresenter from './presenter/movie-presenter.js';
+import { createFilms } from './mocking.js';
+import { Films } from './constants.js';
 
-displayMainPage();
+const moviePresenter = new MoviePresenter(createFilms(Films.COUNT));
+moviePresenter.showAll();

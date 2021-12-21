@@ -1,11 +1,3 @@
-const createElement = (template) => {
-  const newElement = document.createElement('div');
-  newElement.innerHTML = template;
-
-  return newElement.firstElementChild;
-};
-
-
 export default class AbstractView {
   #element = null;
   _callbacks = {};
@@ -18,7 +10,7 @@ export default class AbstractView {
 
   get element() {
     if (!this.#element) {
-      this.#element = createElement(this.template);
+      this.#element = this.#createElement(this.template);
     }
 
     return this.#element;
@@ -28,10 +20,23 @@ export default class AbstractView {
     throw new Error('Abstract method not implemented: get template');
   }
 
-  removeElement() {
+  clearElement = () => {
     if (this.#element !== null) {
-      this.#element.remove();
       this.#element = null;
     }
+  }
+
+  removeElement = () => {
+    if (this.#element !== null) {
+      this.#element.remove();
+      this.clearElement();
+    }
+  }
+
+  #createElement = (template) => {
+    const newElement = document.createElement('div');
+    newElement.innerHTML = template;
+
+    return newElement.firstElementChild;
   }
 }

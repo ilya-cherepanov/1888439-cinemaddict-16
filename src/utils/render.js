@@ -30,4 +30,13 @@ const render = (container, element, place) => {
 };
 
 
-export { RenderPosition, render };
+const replace = (oldElement, newElement) => {
+  newElement = newElement instanceof AbstractView ? newElement.element : newElement;
+  oldElement = oldElement instanceof AbstractView ? oldElement.element : oldElement;
+
+  const parent = oldElement.parentElement;
+  parent.replaceChild(newElement, oldElement);
+};
+
+
+export { RenderPosition, render, replace };
