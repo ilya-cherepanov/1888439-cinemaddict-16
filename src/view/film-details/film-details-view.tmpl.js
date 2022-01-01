@@ -41,8 +41,16 @@ const createCommentsList = (comments) => {
   return commentsList.join('\n');
 };
 
+const createEmojiImg = (emoji) => {
+  if (emoji === null) {
+    return '';
+  }
 
-const createFilmDetailsTemplate = (film, comments) => {
+  return `<img src="${getEmojiPath(emoji)}" width="55" height="55" alt="emoji-${emoji}"></img>`;
+};
+
+
+const createFilmDetailsTemplate = (film, comments, currentComment) => {
   const { filmInfo, userDetails }  = film;
 
   return `<section class="film-details">
@@ -125,10 +133,12 @@ const createFilmDetailsTemplate = (film, comments) => {
           </ul>
 
           <div class="film-details__new-comment">
-            <div class="film-details__add-emoji-label"></div>
+            <div class="film-details__add-emoji-label">
+              ${createEmojiImg(currentComment.emotion)}
+            </div>
 
             <label class="film-details__comment-label">
-              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${currentComment.comment}</textarea>
             </label>
 
             <div class="film-details__emoji-list">
