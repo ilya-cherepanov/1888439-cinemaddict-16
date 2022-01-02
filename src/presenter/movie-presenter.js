@@ -34,9 +34,11 @@ export default class MoviePresenter {
   constructor(films) {
     this.#films = [...films];
     this.#filters = createFilters(films);
+
+    this.init();
   }
 
-  showAll = () => {
+  init = () => {
     this.#showProfile();
     this.#showNavigation();
     this.#showFilms();
@@ -75,7 +77,6 @@ export default class MoviePresenter {
       render(mainNavigation, this.#sortView, RenderPosition.AFTEREND);
     }
   }
-
 
   #showFilms = () => {
     this.#showFilmsContainer();
@@ -168,15 +169,7 @@ export default class MoviePresenter {
     }
   }
 
-  #handleDetailsControlClick = (filmUpdate, comments) => {
-    const oldFilmDetailsView = this.#filmDetailsView;
-
-    this.#filmDetailsView = new FilmDetailsView(filmUpdate, comments);
-    this.#filmDetailsView.setClickCloseHandler(this.#closeFilmDetails);
-    this.#filmDetailsView.setClickControlsHandler(this.#handleDetailsControlClick);
-
-    replace(oldFilmDetailsView, this.#filmDetailsView);
-
+  #handleDetailsControlClick = (filmUpdate) => {
     this.#handleCardControlClick(filmUpdate);
   }
 
