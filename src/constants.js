@@ -18,8 +18,23 @@ const Films = {
 };
 
 
+const UserAction = {
+  UPDATE_FILM: 'update film',
+  REMOVE_COMMENT: 'remove comment',
+  ADD_COMMENT: 'add comment',
+};
+
+
+const NavigationItemsType = {
+  ...FilmsFilterType,
+  STATS: 'stats',
+};
+
+
 export {
   Films,
   FilmsFilterType,
-  FilmsListExtraType
+  FilmsListExtraType,
+  UserAction,
+  NavigationItemsType
 };

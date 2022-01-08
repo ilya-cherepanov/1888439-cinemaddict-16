@@ -1,6 +1,6 @@
 import { render, RenderPosition, replace } from '../utils/render.js';
 import { createFilters, createComments } from '../mocking.js';
-import { FilmsFilterType, Films } from '../constants.js';
+import { FilmsFilterType, Films, UserAction } from '../constants.js';
 import { isListEnded } from '../utils/checking.js';
 import { isEscKey } from '../utils/checking.js';
 import EmptyFilmsView from '../view/empty-films/empty-films-view.js';
@@ -15,7 +15,9 @@ import FilmDetailsView from '../view/film-details/film-details-view.js';
 
 
 export default class MoviePresenter {
-  #films = null;
+  #filmsModel = null;
+  #commentsModel = null;
+  #filterModel = null;
   #filters = null;
   #currentStep = 0;
 
@@ -31,50 +33,60 @@ export default class MoviePresenter {
   #headerElement = document.querySelector('.header');
   #mainElement = document.querySelector('.main');
 
-  constructor(films) {
-    this.#films = [...films];
-    this.#filters = createFilters(films);
+  constructor(filmsModel, commentsModel, filterModel) {
+    this.#filmsModel = filmsModel;
+    this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
+    this.#filters = createFilters(this.films);
 
     this.init();
   }
 
+  get films() {
+    return this.#filmsModel.films;
+  }
+
   init = () => {
     this.#showProfile();
-    this.#showNavigation();
+    // this.#showNavigation();
     this.#showFilms();
     this.#showStatistics();
+    this.#filmsModel.add(this.#handleModelNotification);
+  }
+
+  destroy = () => {
   }
 
   #showProfile = () => {
-    this.#profileView = new ProfileView(this.#films);
+    this.#profileView = new ProfileView(this.films);
     render(this.#headerElement, this.#profileView, RenderPosition.BEFOREEND);
   }
 
-  #updateProfile = () => {
-    const oldProfileView = this.#profileView;
-    this.#profileView = new ProfileView(this.#films);
-    replace(oldProfileView, this.#profileView);
-  }
+  // #updateProfile = () => {
+  //   const oldProfileView = this.#profileView;
+  //   this.#profileView = new ProfileView(this.#filmsModel.films);
+  //   replace(oldProfileView, this.#profileView);
+  // }
 
   #showNavigation = () => {
     this.#navigationView = new NavigationView(this.#filters);
     render(this.#mainElement, this.#navigationView, RenderPosition.BEFOREEND);
   }
 
-  #updateNavigation = () => {
-    const oldNavigationView = this.#navigationView;
-    this.#filters = createFilters(this.#films);
-    this.#navigationView = new NavigationView(this.#filters);
-    replace(oldNavigationView, this.#navigationView);
-  }
+  // #updateNavigation = () => {
+  //   const oldNavigationView = this.#navigationView;
+  //   this.#filters = createFilters(this.#films);
+  //   this.#navigationView = new NavigationView(this.#filters);
+  //   replace(oldNavigationView, this.#navigationView);
+  // }
 
   #showFilmsContainer = () => {
-    this.#filmsView = this.#films.length > 0 ? new FilmsView() : new EmptyFilmsView(FilmsFilterType.ALL);
+    this.#filmsView = this.films.length > 0 ? new FilmsView() : new EmptyFilmsView(FilmsFilterType.ALL);
     render(this.#mainElement, this.#filmsView, RenderPosition.BEFOREEND);
 
     if (this.#filmsView instanceof FilmsView) {
       const mainNavigation = document.querySelector('.main-navigation');
-      render(mainNavigation, this.#sortView, RenderPosition.AFTEREND);
+      render(this.#mainElement, this.#sortView, RenderPosition.AFTERBEGIN);
     }
   }
 
@@ -91,7 +103,7 @@ export default class MoviePresenter {
   #showFilmsList = () => {
     this.#showFilmsPortion();
 
-    if (isListEnded(this.#films, this.#currentStep, Films.COUNT_PER_STEP)) {
+    if (isListEnded(this.films, this.#currentStep, Films.COUNT_PER_STEP)) {
       return;
     }
 
@@ -114,7 +126,7 @@ export default class MoviePresenter {
   }
 
   #showStatistics = () => {
-    this.#statisticsView = new StatisticsView(this.#films.length);
+    this.#statisticsView = new StatisticsView(this.films.length);
     const footerStatisticsElement = document.querySelector('.footer__statistics');
     render(footerStatisticsElement, this.#statisticsView, RenderPosition.BEFOREEND);
   }
@@ -122,7 +134,7 @@ export default class MoviePresenter {
   #showMoreButtonHandler = () => {
     this.#showFilmsPortion();
 
-    if (isListEnded(this.#films, this.#currentStep, Films.COUNT_PER_STEP)) {
+    if (isListEnded(this.#filmsModel.films, this.#currentStep, Films.COUNT_PER_STEP)) {
       this.#showMoreView.removeElement();
     }
   }
@@ -131,8 +143,8 @@ export default class MoviePresenter {
     const filmsListContainer = document.querySelector('.films-list__container');
 
     const initialIndex = Films.COUNT_PER_STEP * this.#currentStep;
-    for (let i = initialIndex; i < Math.min((initialIndex + Films.COUNT_PER_STEP), this.#films.length); ++i) {
-      this.#showFilmCard(filmsListContainer, this.#films[i]);
+    for (let i = initialIndex; i < Math.min((initialIndex + Films.COUNT_PER_STEP), this.films.length); ++i) {
+      this.#showFilmCard(filmsListContainer, this.films[i]);
     }
 
     this.#currentStep += 1;
@@ -174,8 +186,14 @@ export default class MoviePresenter {
   }
 
   #handleCardControlClick = (filmUpdate) => {
-    this.#updateFilms(filmUpdate);
+    // this.#updateFilms(filmUpdate);
 
+    this.#handleViewAction(UserAction.UPDATE_FILM, 'update card', filmUpdate);
+    // this.#updateProfile();
+    // this.#updateNavigation();
+  }
+
+  #updateFilmCard = (filmUpdate) => {
     const oldFilmCardView = this.#filmCardsViews.get(filmUpdate.id);
 
     const updatedFilmCardView = new FilmCardView(filmUpdate);
@@ -184,9 +202,39 @@ export default class MoviePresenter {
     this.#filmCardsViews.set(filmUpdate.id, updatedFilmCardView);
 
     replace(oldFilmCardView, updatedFilmCardView);
+  }
 
-    this.#updateProfile();
-    this.#updateNavigation();
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmsModel.updateFilm(updateType, update);
+        break;
+      case UserAction.REMOVE_COMMENT:
+        this.#commentsModel.deleteComment(updateType, update);
+        break;
+    }
+  }
+
+  #handleModelNotification = (updateType, update) => {
+    switch (updateType) {
+      case 'update card':
+        // this.#updateFilmCard(update);
+        this.#clearFilmsList(true);
+        break;
+      case 'all':
+          console.log(updateType, update);
+          break;
+    }
+  }
+
+  #clearFilmsList = (resetFilmsStep = false) => {
+    this.#showMoreView.removeElement();
+    this.#sortView.removeElement();
+
+    this.#filmCardsViews.forEach((filmCardView) => filmCardView.removeElement());
+    this.#filmCardsViews.clear();
+
+    this.#currentStep = resetFilmsStep ? 0 : this.#currentStep;
   }
 
   //Потом пригодится
@@ -196,18 +244,4 @@ export default class MoviePresenter {
   //   this.#currentStep = 0;
   //   this.#showMoreView.removeElement();
   // }
-
-  #updateFilms = (filmUpdate) => {
-    const index = this.#films.findIndex((item) => item.id === filmUpdate.id);
-
-    if (index === -1) {
-      return;
-    }
-
-    this.#films = [
-      ...this.#films.slice(0, index),
-      filmUpdate,
-      ...this.#films.slice(index + 1),
-    ];
-  }
 }
