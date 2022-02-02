@@ -80,5 +80,5 @@ export {
   formatShortDescription,
   formatReleaseYear,
   formatFilmsCount,
-  getUserRankName,
+  getUserRankName
 };

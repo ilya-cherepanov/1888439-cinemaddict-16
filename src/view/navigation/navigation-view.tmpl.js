@@ -27,7 +27,7 @@ const getFilterElement = (filter) => {
 
 
 const createFilters = (filters) => filters.map(
-  (filter) => getFilterElement(filter)
+  (filter) => getFilterElement(filter),
 ).join('\n');
 
 

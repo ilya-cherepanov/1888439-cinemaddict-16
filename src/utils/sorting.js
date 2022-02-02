@@ -11,5 +11,5 @@ const compareByDate =
 
 export {
   compareByDate,
-  compareByRating,
+  compareByRating
 };

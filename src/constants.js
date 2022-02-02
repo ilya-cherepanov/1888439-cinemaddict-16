@@ -13,7 +13,7 @@ const FilmsFilterType = {
 
 const FilmsListExtraType = {
   TOP_RATED: 'Top rated',
-  MOST_COMMENTED: 'Most commented'
+  MOST_COMMENTED: 'Most commented',
 };
 
 
@@ -71,5 +71,5 @@ export {
   FilmSortType,
   Api,
   BAR_HEIGHT,
-  StatisticsInterval,
+  StatisticsInterval
 };

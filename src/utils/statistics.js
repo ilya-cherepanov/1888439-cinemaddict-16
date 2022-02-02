@@ -10,8 +10,7 @@ const countGenres = (films) => {
 
   for (const film of films) {
     for (const genre of film.filmInfo.genre) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (!genres.hasOwnProperty(genre)) {
+      if (!Object.prototype.hasOwnProperty.call(genres, genre)) {
         genres[genre] = 1;
       } else {
         genres[genre] += 1;
@@ -55,7 +54,7 @@ const filterByTimeInterval = (films, interval) => {
   const timeFilter = createTimeFilter(interval);
 
   return films.filter(
-    (film) => film.userDetails.alreadyWatched && timeFilter(film)
+    (film) => film.userDetails.alreadyWatched && timeFilter(film),
   );
 };
 
@@ -85,5 +84,5 @@ export {
   filterByTimeInterval,
   sortGenres,
   getTopGenre,
-  getTotalDuration,
+  getTotalDuration
 };
