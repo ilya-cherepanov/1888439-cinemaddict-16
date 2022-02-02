@@ -1,5 +1,7 @@
 import SmartView from '../smart-view.js';
+import he from 'he';
 import { createFilmDetailsTemplate } from './film-details-view.tmpl.js';
+import { UserAction, UpdateType } from '../../constants.js';
 
 
 export default class FilmDetailsView extends SmartView {
@@ -11,6 +13,7 @@ export default class FilmDetailsView extends SmartView {
     this.element.addEventListener('scroll', this.#scrollHandler);
     this.setEmojiClickHandler();
     this.setCommentInputHandler();
+    this.setDeleteCommentHandler();
   }
 
   get film() {
@@ -54,6 +57,10 @@ export default class FilmDetailsView extends SmartView {
     commentInput.addEventListener('input', this.#changeCommentInputHandler);
   }
 
+  setViewActionHandler = (handler) => {
+    this._callbacks.viewAction = handler;
+  }
+
   updateElements = () => {
     super.updateElements();
     this.element.scrollTop = this._state.scrollPosition;
@@ -64,26 +71,97 @@ export default class FilmDetailsView extends SmartView {
     }
   }
 
+  updateData = ({ film, comments }) => {
+    this.updateState({ film: film, comments: comments, currentComment: { comment: '', emotion: null } }, false);
+  }
+
   restoreHandlers = () => {
     this.element.addEventListener('scroll', this.#scrollHandler);
     this.setEmojiClickHandler();
     this.setCommentInputHandler();
     this.setClickCloseHandler(this._callbacks.clickClose);
     this.setClickControlsHandler(this._callbacks.clickControl);
+    this.setDeleteCommentHandler();
+  }
+
+  setDeleteCommentHandler = () => {
+    const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
+
+    deleteButtons.forEach(
+      (deleteButton) => deleteButton.addEventListener('click', this.#deleteCommentHandler)
+    );
+  }
+
+  #deleteCommentHandler = async (evt) => {
+    evt.preventDefault();
+
+    const { target } = evt;
+    target.textContent = 'Deleting...';
+
+    try {
+      await this._callbacks.viewAction(UserAction.REMOVE_COMMENT, UpdateType.POPUP, { film: this._state.film, commentId: target.dataset.id });
+    } catch (err) {
+      target.textContent = 'Delete';
+    }
+  }
+
+  initSendComment = () => {
+    if (this._state.currentComment.comment === '' || this._state.currentComment.emotion === null) {
+      return;
+    }
+
+    this.#createCommentHandler();
+  }
+
+  #createCommentHandler = async () => {
+
+    this.#setCommentFormActivity(false);
+
+    try {
+      await this._callbacks.viewAction(UserAction.ADD_COMMENT, UpdateType.POPUP, { film: this._state.film, comment: this._state.currentComment });
+    } catch (err) {
+      this.#showAnimation();
+    }
+
+    this.#setCommentFormActivity(true);
+  }
+
+  #handleAnimationEnd = ({ target }) => {
+    target.classList.remove('shake');
+    target.removeEventListener('animationend', this.#handleAnimationEnd);
+  }
+
+  #showAnimation = () => {
+    const newCommentForm = this.element.querySelector('.film-details__new-comment');
+    newCommentForm.addEventListener('animationend', this.#handleAnimationEnd);
+
+    newCommentForm.classList.add('shake');
   }
 
   #changeCommentInputHandler = ({ target }) => {
     const newState = { ...this._state };
-    newState.currentComment.comment = target.value;
+    newState.currentComment.comment = he.encode(target.value);
 
     this.updateState(newState, true);
   }
 
   #clickEmojiHandler = ({ target }) => {
+    if (this._state.isCommentCreating) {
+      return;
+    }
+
     const newState = { ...this._state };
     newState.currentComment.emotion = target.value;
 
     this.updateState(newState, false);
+  }
+
+  #setCommentFormActivity = (enabled) => {
+    const commentTextarea = this.element.querySelector('.film-details__comment-input');
+    commentTextarea.disabled = !enabled;
+
+    const emojiInputs = this.element.querySelectorAll('film-details__emoji-item');
+    emojiInputs.forEach((emojiInput) => { emojiInput.disabled = !enabled; });
   }
 
   #clickControlHandler = (evt) => {
@@ -99,12 +177,7 @@ export default class FilmDetailsView extends SmartView {
       filmUpdate.userDetails.alreadyWatched = !this.film.userDetails.alreadyWatched;
     }
 
-    const newState = { ...this._state };
-    newState.film = filmUpdate;
-    this.updateState(newState, false);
-
-
-    this._callbacks.clickControl(filmUpdate);
+    this._callbacks.viewAction(UserAction.UPDATE_FILM, UpdateType.PATCH, filmUpdate);
   };
 
   #clickCloseHandler = (evt) => {
@@ -116,7 +189,6 @@ export default class FilmDetailsView extends SmartView {
   #scrollHandler = ({ target }) => {
     this._state.scrollPosition = target.scrollTop;
   }
-
 
   static mapFilmDataToState = (film, comments) => ({
     film,

@@ -1,4 +1,4 @@
-import { FilmsListExtraType } from '../constants.js';
+import { FilmsListExtraType, FilmSortType } from '../constants.js';
 
 const sortFilms = (films, compareFunc, count = 2) => (
   [...films].sort(compareFunc).slice(0, count)

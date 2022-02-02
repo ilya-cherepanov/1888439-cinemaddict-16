@@ -2,6 +2,25 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 
 
+const UserRanks = {
+  NOVICE: {
+    RANK: 'Novice',
+    MIN_FILMS: 1,
+    MAX_FILMS: 10,
+  },
+  FAN: {
+    RANK: 'Fan',
+    MIN_FILMS: 11,
+    MAX_FILMS: 20,
+  },
+  MOVIE_BUFF: {
+    RANK: 'Movie Buff',
+    MIN_FILMS: 21,
+    MAX_FILMS: Infinity,
+  },
+};
+
+
 dayjs.extend(duration);
 
 
@@ -43,6 +62,16 @@ const formatFilmsCount = (count, groupBy = 3) => {
   return reverseString(reverseString(String(count)).match(regex).join(' '));
 };
 
+
+const getUserRankName = (watchedFilmsCount) => {
+  for (const userRank of Object.values(UserRanks)) {
+    if (watchedFilmsCount >= userRank.MIN_FILMS && watchedFilmsCount <= userRank.MAX_FILMS) {
+      return userRank.RANK;
+    }
+  }
+};
+
+
 export {
   formatFilmRuntime,
   formatTotalRating,
@@ -50,5 +79,6 @@ export {
   formatReleaseDate,
   formatShortDescription,
   formatReleaseYear,
-  formatFilmsCount
+  formatFilmsCount,
+  getUserRankName,
 };

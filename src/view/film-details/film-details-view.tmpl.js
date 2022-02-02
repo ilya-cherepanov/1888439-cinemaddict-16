@@ -1,3 +1,4 @@
+import he from 'he';
 import {
   formatTotalRating,
   formatFilmRuntime,
@@ -28,11 +29,11 @@ const createCommentsList = (comments) => {
         <img src="${getEmojiPath(comment.emotion)}" width="55" height="55" alt="emoji-sleeping">
       </span>
       <div>
-        <p class="film-details__comment-text">${comment.comment}</p>
+        <p class="film-details__comment-text">${he.encode(comment.comment)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${comment.author}</span>
           <span class="film-details__comment-day">${formatCommentDate(comment.date)}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <button class="film-details__comment-delete" data-id="${comment.id}">Delete</button>
         </p>
       </div>
     </li>`

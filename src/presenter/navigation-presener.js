@@ -1,4 +1,4 @@
-import { FilmsFilterType } from '../constants.js';
+import { FilmsFilterType, UpdateType, NavigationItemsType } from '../constants.js';
 import { Filters } from '../utils/filters.js';
 import { render, replace, RenderPosition } from '../utils/render.js';
 import NavigationView from '../view/navigation/navigation-view.js';
@@ -8,13 +8,19 @@ export default class NavigationPresenter {
   #filterModel = null;
   #filmsModel = null;
 
+  #isLoading = true;
+  #navigationItemType = NavigationItemsType.FILMS;
+
   #navigationView = null;
+
+  #navigationCallback = null;
 
   #containerElement = document.querySelector('.main');
 
-  constructor(filterModel, filmsModel) {
+  constructor(filterModel, filmsModel, navigationCallback) {
     this.#filterModel = filterModel;
     this.#filmsModel = filmsModel;
+    this.#navigationCallback = navigationCallback;
   }
 
   get filters() {
@@ -23,26 +29,30 @@ export default class NavigationPresenter {
     return [
       {
         type: FilmsFilterType.ALL,
+        active: FilmsFilterType.ALL === this.#filterModel.filter,
         count: Filters[FilmsFilterType.ALL](films).length,
       },
       {
-        type: FilmsFilterType.FAVORITES,
-        count: Filters[FilmsFilterType.FAVORITES](films).length,
+        type: FilmsFilterType.WATCHLIST,
+        active: FilmsFilterType.WATCHLIST === this.#filterModel.filter,
+        count: Filters[FilmsFilterType.WATCHLIST](films).length,
       },
       {
         type: FilmsFilterType.HISTORY,
+        active: FilmsFilterType.HISTORY === this.#filterModel.filter,
         count: Filters[FilmsFilterType.HISTORY](films).length,
       },
       {
-        type: FilmsFilterType.WATCHLIST,
-        count: Filters[FilmsFilterType.WATCHLIST](films).length,
+        type: FilmsFilterType.FAVORITES,
+        active: FilmsFilterType.FAVORITES === this.#filterModel.filter,
+        count: Filters[FilmsFilterType.FAVORITES](films).length,
       },
     ];
   }
 
   init = () => {
     const prevNavigationView = this.#navigationView;
-    this.#navigationView = new NavigationView(this.filters, this.#filterModel.filter);
+    this.#navigationView = new NavigationView(this.filters, this.#navigationItemType);
     this.#navigationView.setFilterChangeHandler(this.#handleFilterChange);
 
     this.#filterModel.add(this.#handleModelNotification);
@@ -54,17 +64,40 @@ export default class NavigationPresenter {
     }
 
     replace(prevNavigationView, this.#navigationView);
-    prevNavigationView.remove();
+    prevNavigationView.removeElement();
   }
 
   destroy = () => {
   }
 
-  #handleModelNotification = () => {
+  #handleModelNotification = (updateType) => {
+    if (updateType === UpdateType.INIT) {
+      this.#isLoading = false;
+    }
+
     this.init();
   }
 
-  #handleFilterChange = (filterUpdate) => {
-    this.#filterModel.updateFilter('all', filterUpdate);
+  #handleNavigationChange = () => {
+    if (this.#isLoading) {
+      return;
+    }
+
+    this.#navigationCallback(this.#navigationItemType);
+  }
+
+  #handleFilterChange = (filterUpdate, navigationItemType) => {
+    const isNavigationChanged = navigationItemType !== this.#navigationItemType;
+
+    if (filterUpdate === this.#filterModel.filter && !isNavigationChanged) {
+      return;
+    }
+
+    this.#navigationItemType = navigationItemType;
+    if (isNavigationChanged) {
+      this.#handleNavigationChange();
+    }
+
+    this.#filterModel.updateFilter(UpdateType.MAJOR, filterUpdate);
   }
 }

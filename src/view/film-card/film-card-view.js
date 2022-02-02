@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import AbstractView from '../abstract-view.js';
 import { createFilmCardTemplate } from './film-card-view.tmpl.js';
 
@@ -43,6 +44,7 @@ export default class FilmCardView extends AbstractView {
       filmUpdate.userDetails.watchlist = !this.#film.userDetails.watchlist;
     } else if (target.classList.contains('film-card__controls-item--mark-as-watched')) {
       filmUpdate.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
+      filmUpdate.userDetails.watchingDate = filmUpdate.userDetails.alreadyWatched ? dayjs().toISOString() : null;
     }
 
     this._callbacks.clickControl(filmUpdate);
