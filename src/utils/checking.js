@@ -6,7 +6,7 @@ const KeyCode = {
 const isEscKey = (evt) => evt.keyCode === KeyCode.ESC;
 
 
-const isListEnded = (list, step = 0, perStep = 0) => list.length <= step * perStep;
+const isCtrlEnter = (evt) => evt.code === 'Enter' && (evt.ctrlKey || evt.metaKey);
 
 
-export { isEscKey, isListEnded };
+export { isEscKey, isCtrlEnter };

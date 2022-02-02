@@ -1,29 +1,4 @@
-const UserRanks = {
-  NOVICE: {
-    RANK: 'Novice',
-    MIN_FILMS: 1,
-    MAX_FILMS: 10,
-  },
-  FAN: {
-    RANK: 'Fan',
-    MIN_FILMS: 11,
-    MAX_FILMS: 20,
-  },
-  MOVIE_BUFF: {
-    RANK: 'Movie Buff',
-    MIN_FILMS: 21,
-    MAX_FILMS: Infinity,
-  },
-};
-
-
-const getUserRankName = (watchedFilmsCount) => {
-  for (const userRank of Object.values(UserRanks)) {
-    if (watchedFilmsCount >= userRank.MIN_FILMS && watchedFilmsCount <= userRank.MAX_FILMS) {
-      return userRank.RANK;
-    }
-  }
-};
+import { getUserRankName } from '../../utils/format.js';
 
 
 const getUserRank = (films) => {
