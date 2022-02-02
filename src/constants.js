@@ -1,3 +1,7 @@
+const FILMS_COUNT_PER_STEP = 5;
+const BAR_HEIGHT = 50;
+
+
 const FilmsFilterType = {
   NOTHING: 'nothing',
   ALL: 'all',
@@ -10,12 +14,6 @@ const FilmsFilterType = {
 const FilmsListExtraType = {
   TOP_RATED: 'Top rated',
   MOST_COMMENTED: 'Most commented'
-};
-
-
-const Films = {
-  COUNT: 23,
-  COUNT_PER_STEP: 5,
 };
 
 
@@ -48,12 +46,30 @@ const FilmSortType = {
 };
 
 
+const Api = {
+  AUTHORIZATION_TOKEN: 'adg7723bcls',
+  END_POINT: 'https://16.ecmascript.pages.academy/cinemaddict',
+};
+
+
+const StatisticsInterval = {
+  ALL_TIME: 'all time',
+  TODAY: 'today',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
+};
+
+
 export {
-  Films,
+  FILMS_COUNT_PER_STEP,
   FilmsFilterType,
   FilmsListExtraType,
   UserAction,
   NavigationItemsType,
   UpdateType,
   FilmSortType,
+  Api,
+  BAR_HEIGHT,
+  StatisticsInterval,
 };

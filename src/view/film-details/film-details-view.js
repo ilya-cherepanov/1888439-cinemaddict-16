@@ -10,7 +10,7 @@ export default class FilmDetailsView extends SmartView {
 
     this._state = FilmDetailsView.mapFilmDataToState(film, comments);
 
-    this.element.addEventListener('scroll', this.#scrollHandler);
+    this.element.addEventListener('scroll', this.#handleScroll);
     this.setEmojiClickHandler();
     this.setCommentInputHandler();
     this.setDeleteCommentHandler();
@@ -33,7 +33,7 @@ export default class FilmDetailsView extends SmartView {
 
     this.element
       .querySelector('.film-details__close-btn')
-      .addEventListener('click', this.#clickCloseHandler);
+      .addEventListener('click', this.#handleClickClose);
   }
 
   setClickControlsHandler = (handler) => {
@@ -41,20 +41,20 @@ export default class FilmDetailsView extends SmartView {
 
     const controls = this.element.querySelectorAll('.film-details__control-button');
     controls.forEach(
-      (control) => control.addEventListener('click', this.#clickControlHandler)
+      (control) => control.addEventListener('click', this.#handleClickControl)
     );
   }
 
   setEmojiClickHandler = () => {
     const emojiLabels = this.element.querySelectorAll('.film-details__emoji-item');
     emojiLabels.forEach(
-      (emojiLabel) => emojiLabel.addEventListener('change', this.#clickEmojiHandler)
+      (emojiLabel) => emojiLabel.addEventListener('change', this.#handleClickEmoji)
     );
   }
 
   setCommentInputHandler = () => {
     const commentInput = this.element.querySelector('.film-details__comment-input');
-    commentInput.addEventListener('input', this.#changeCommentInputHandler);
+    commentInput.addEventListener('input', this.#handleChangeCommentInput);
   }
 
   setViewActionHandler = (handler) => {
@@ -76,7 +76,7 @@ export default class FilmDetailsView extends SmartView {
   }
 
   restoreHandlers = () => {
-    this.element.addEventListener('scroll', this.#scrollHandler);
+    this.element.addEventListener('scroll', this.#handleScroll);
     this.setEmojiClickHandler();
     this.setCommentInputHandler();
     this.setClickCloseHandler(this._callbacks.clickClose);
@@ -88,11 +88,34 @@ export default class FilmDetailsView extends SmartView {
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
 
     deleteButtons.forEach(
-      (deleteButton) => deleteButton.addEventListener('click', this.#deleteCommentHandler)
+      (deleteButton) => deleteButton.addEventListener('click', this.#handleDeleteComment)
     );
   }
 
-  #deleteCommentHandler = async (evt) => {
+  initSendComment = () => {
+    if (this._state.currentComment.comment === '' || this._state.currentComment.emotion === null) {
+      return;
+    }
+
+    this.#handleCreateComment();
+  }
+
+  #showShakeAnimation = () => {
+    const newCommentForm = this.element.querySelector('.film-details__new-comment');
+    newCommentForm.addEventListener('animationend', this.#handleShakeAnimationEnd);
+
+    newCommentForm.classList.add('shake');
+  }
+
+  #setCommentFormActivity = (enabled) => {
+    const commentTextarea = this.element.querySelector('.film-details__comment-input');
+    commentTextarea.disabled = !enabled;
+
+    const emojiInputs = this.element.querySelectorAll('film-details__emoji-item');
+    emojiInputs.forEach((emojiInput) => { emojiInput.disabled = !enabled; });
+  }
+
+  #handleDeleteComment = async (evt) => {
     evt.preventDefault();
 
     const { target } = evt;
@@ -105,47 +128,32 @@ export default class FilmDetailsView extends SmartView {
     }
   }
 
-  initSendComment = () => {
-    if (this._state.currentComment.comment === '' || this._state.currentComment.emotion === null) {
-      return;
-    }
-
-    this.#createCommentHandler();
-  }
-
-  #createCommentHandler = async () => {
+  #handleCreateComment = async () => {
 
     this.#setCommentFormActivity(false);
 
     try {
       await this._callbacks.viewAction(UserAction.ADD_COMMENT, UpdateType.POPUP, { film: this._state.film, comment: this._state.currentComment });
     } catch (err) {
-      this.#showAnimation();
+      this.#showShakeAnimation();
     }
 
     this.#setCommentFormActivity(true);
   }
 
-  #handleAnimationEnd = ({ target }) => {
+  #handleShakeAnimationEnd = ({ target }) => {
     target.classList.remove('shake');
-    target.removeEventListener('animationend', this.#handleAnimationEnd);
+    target.removeEventListener('animationend', this.#handleShakeAnimationEnd);
   }
 
-  #showAnimation = () => {
-    const newCommentForm = this.element.querySelector('.film-details__new-comment');
-    newCommentForm.addEventListener('animationend', this.#handleAnimationEnd);
-
-    newCommentForm.classList.add('shake');
-  }
-
-  #changeCommentInputHandler = ({ target }) => {
+  #handleChangeCommentInput = ({ target }) => {
     const newState = { ...this._state };
     newState.currentComment.comment = he.encode(target.value);
 
     this.updateState(newState, true);
   }
 
-  #clickEmojiHandler = ({ target }) => {
+  #handleClickEmoji = ({ target }) => {
     if (this._state.isCommentCreating) {
       return;
     }
@@ -156,15 +164,7 @@ export default class FilmDetailsView extends SmartView {
     this.updateState(newState, false);
   }
 
-  #setCommentFormActivity = (enabled) => {
-    const commentTextarea = this.element.querySelector('.film-details__comment-input');
-    commentTextarea.disabled = !enabled;
-
-    const emojiInputs = this.element.querySelectorAll('film-details__emoji-item');
-    emojiInputs.forEach((emojiInput) => { emojiInput.disabled = !enabled; });
-  }
-
-  #clickControlHandler = (evt) => {
+  #handleClickControl = (evt) => {
     evt.preventDefault();
     const { target } = evt;
 
@@ -180,13 +180,13 @@ export default class FilmDetailsView extends SmartView {
     this._callbacks.viewAction(UserAction.UPDATE_FILM, UpdateType.PATCH, filmUpdate);
   };
 
-  #clickCloseHandler = (evt) => {
+  #handleClickClose = (evt) => {
     evt.preventDefault();
 
     this._callbacks.clickClose();
   }
 
-  #scrollHandler = ({ target }) => {
+  #handleScroll = ({ target }) => {
     this._state.scrollPosition = target.scrollTop;
   }
 

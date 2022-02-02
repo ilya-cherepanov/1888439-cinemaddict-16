@@ -2,89 +2,9 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import SmartView from '../smart-view.js';
 import { createStatisticsTemplate } from './statistics-view.tmpl.js';
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { StatisticsInterval, BAR_HEIGHT } from '../../constants.js';
+import { filterByTimeInterval, countGenres, getTotalDuration, getTopGenre, sortGenres } from '../../utils/statistics.js';
 
-
-dayjs.extend(isSameOrAfter);
-
-
-const StatisticsInterval = {
-  ALL_TIME: 'all time',
-  TODAY: 'today',
-  WEEK: 'week',
-  MONTH: 'month',
-  YEAR: 'year',
-};
-
-const countGenres = (films) => {
-  const genres = {};
-
-  for (const film of films) {
-    for (const genre of film.filmInfo.genre) {
-      if (!genres.hasOwnProperty(genre)) {
-        genres[genre] = 1;
-      } else {
-        genres[genre] += 1;
-      }
-    }
-  }
-
-  return genres;
-};
-
-const createTimeFilter = (interval) => {
-  if (interval === StatisticsInterval.ALL_TIME) {
-    return () => true;
-  }
-
-  let afterDate = dayjs();
-
-  switch (interval) {
-    case StatisticsInterval.TODAY:
-      afterDate = afterDate.subtract(1, 'day');
-      break;
-    case StatisticsInterval.WEEK:
-      afterDate = afterDate.subtract(1, 'week');
-      break;
-    case StatisticsInterval.MONTH:
-      afterDate = afterDate.subtract(1, 'month');
-      break;
-    case StatisticsInterval.YEAR:
-      afterDate = afterDate.subtract(1, 'year');
-      break;
-  }
-
-  return (film) => (
-    dayjs(film.userDetails.watchingDate).isSameOrAfter(afterDate)
-  );
-};
-
-const filterByTimeInterval = (films, interval) => {
-  const timeFilter = createTimeFilter(interval);
-
-  return films.filter(
-    (film) => film.userDetails.alreadyWatched && timeFilter(film)
-  );
-};
-
-const sortGenres = (genres) => Object.entries(genres).sort((lhs, rhs) => rhs[1] - lhs[1]);
-
-const getTopGenre = (watchedGenres) => {
-  const sortedGenres = sortGenres(watchedGenres);
-
-  if (sortedGenres.length <= 0) {
-    return '';
-  }
-
-  return sortedGenres[0][0];
-};
-
-const getTotalDuration = (watchedFilms) => (
-  watchedFilms.reduce((accumulator, film) => accumulator + film.filmInfo.runtime, 0)
-);
-
-const BAR_HEIGHT = 50;
 
 export default class StatisticsView extends SmartView {
   constructor(films) {
@@ -159,12 +79,6 @@ export default class StatisticsView extends SmartView {
     ];
   }
 
-  #setChangeFilterHandler = () => {
-    const filterRadios = this.element.querySelectorAll('.statistic__filters-input');
-
-    filterRadios.forEach((filterRadio) => filterRadio.addEventListener('input', this.#handleChangeFilter));
-  }
-
   restoreHandlers() {
     this.#setChangeFilterHandler();
   }
@@ -177,43 +91,10 @@ export default class StatisticsView extends SmartView {
     }
   }
 
-  #handleChangeFilter = ({ target }) => {
-    let stateUpdate = null;
+  #setChangeFilterHandler = () => {
+    const filterRadios = this.element.querySelectorAll('.statistic__filters-input');
 
-    switch (target.value) {
-      case 'all-time':
-        stateUpdate = {
-          statisticsInterval: StatisticsInterval.ALL_TIME,
-        };
-        break;
-      case 'today':
-        stateUpdate = {
-          statisticsInterval: StatisticsInterval.TODAY,
-        };
-        break;
-      case 'week':
-        stateUpdate = {
-          statisticsInterval: StatisticsInterval.WEEK,
-        };
-        break;
-      case 'month':
-        stateUpdate = {
-          statisticsInterval: StatisticsInterval.MONTH,
-        };
-        break;
-      case 'year':
-        stateUpdate = {
-          statisticsInterval: StatisticsInterval.YEAR,
-        };
-        break;
-    }
-
-    stateUpdate.watchedFilms = filterByTimeInterval(this._state.films, stateUpdate.statisticsInterval);
-    stateUpdate.watchedGenres = countGenres(stateUpdate.watchedFilms);
-    stateUpdate.totalDuration = getTotalDuration(stateUpdate.watchedFilms);
-    stateUpdate.topGenre = getTopGenre(stateUpdate.watchedGenres);
-
-    this.updateState(stateUpdate, false);
+    filterRadios.forEach((filterRadio) => filterRadio.addEventListener('input', this.#handleChangeFilter));
   }
 
   #setChart = () => {
@@ -227,7 +108,7 @@ export default class StatisticsView extends SmartView {
 
     const statisticCtx = statisticCanvas.getContext('2d');
 
-    const myChart = new Chart(statisticCtx, {
+    new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
       type: 'horizontalBar',
       data: {
@@ -284,5 +165,44 @@ export default class StatisticsView extends SmartView {
         },
       },
     });
+  }
+
+  #handleChangeFilter = ({ target }) => {
+    let stateUpdate = null;
+
+    switch (target.value) {
+      case 'all-time':
+        stateUpdate = {
+          statisticsInterval: StatisticsInterval.ALL_TIME,
+        };
+        break;
+      case 'today':
+        stateUpdate = {
+          statisticsInterval: StatisticsInterval.TODAY,
+        };
+        break;
+      case 'week':
+        stateUpdate = {
+          statisticsInterval: StatisticsInterval.WEEK,
+        };
+        break;
+      case 'month':
+        stateUpdate = {
+          statisticsInterval: StatisticsInterval.MONTH,
+        };
+        break;
+      case 'year':
+        stateUpdate = {
+          statisticsInterval: StatisticsInterval.YEAR,
+        };
+        break;
+    }
+
+    stateUpdate.watchedFilms = filterByTimeInterval(this._state.films, stateUpdate.statisticsInterval);
+    stateUpdate.watchedGenres = countGenres(stateUpdate.watchedFilms);
+    stateUpdate.totalDuration = getTotalDuration(stateUpdate.watchedFilms);
+    stateUpdate.topGenre = getTopGenre(stateUpdate.watchedGenres);
+
+    this.updateState(stateUpdate, false);
   }
 }

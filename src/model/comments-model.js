@@ -35,7 +35,6 @@ export default class CommentsModel extends AbstractObservable {
 
       this.notify(updateType, { film, comments });
     } catch (err) {
-      console.log(err);
       throw new Error('Can\'t create comment!');
     }
   }
@@ -57,12 +56,9 @@ export default class CommentsModel extends AbstractObservable {
 
       const newFilm = update.film;
       newFilm.comments = newFilm.comments.filter((comment) => comment !== update.commentId);
-      console.log(newFilm);
-      console.log(update.commentId);
 
       this.notify(updateType, { film: newFilm, comments: this.#comments });
     } catch (err) {
-      console.log(err);
       throw new Error('Can\'t delete comment!');
     }
   }

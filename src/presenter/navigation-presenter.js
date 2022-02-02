@@ -67,9 +67,6 @@ export default class NavigationPresenter {
     prevNavigationView.removeElement();
   }
 
-  destroy = () => {
-  }
-
   #handleModelNotification = (updateType) => {
     if (updateType === UpdateType.INIT) {
       this.#isLoading = false;
