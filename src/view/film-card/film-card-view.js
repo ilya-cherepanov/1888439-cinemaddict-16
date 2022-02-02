@@ -37,7 +37,7 @@ export default class FilmCardView extends AbstractView {
     evt.preventDefault();
     const { target } = evt;
 
-    const filmUpdate = {...this.#film};
+    const filmUpdate = { ...this.#film,  userDetails: { ...this.#film.userDetails } };
     if (target.classList.contains('film-card__controls-item--favorite')) {
       filmUpdate.userDetails.favorite = !this.#film.userDetails.favorite;
     } else if (target.classList.contains('film-card__controls-item--add-to-watchlist')) {

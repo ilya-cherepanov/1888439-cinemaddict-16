@@ -197,7 +197,6 @@ export default class FilmPresenter {
   }
 
   #updateFilmCard = (update) => {
-
     if (this.#filmDetailsView !== null) {
       this.#filmDetailsView.updateData({ film: update, comments: this.#commentsModel.comments });
     }

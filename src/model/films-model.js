@@ -67,14 +67,14 @@ export default class FilmsModel extends AbstractObservable {
   static adaptFilmToClient = (film) => {
     const adaptedFilm = {
       ...film,
-      filmInfo: film['film_info'],
-      userDetails: film['user_details'],
-      ['film_info']: film.filmInfo,
-      ['user_details']: film.userDetails,
+      filmInfo: { ...film['film_info'] },
+      userDetails: { ...film['user_details'] },
     };
+
     adaptedFilm.filmInfo.alternativeTitle = film['film_info']['alternative_title'];
     adaptedFilm.filmInfo.totalRating = film['film_info']['total_rating'];
     adaptedFilm.filmInfo.ageRating = film['film_info']['age_rating'];
+    adaptedFilm.filmInfo.release = { ...film['film_info']['release'] };
     adaptedFilm.filmInfo.release.country = film['film_info']['release']['release_country'];
 
     adaptedFilm.userDetails.alreadyWatched = film['user_details']['already_watched'];

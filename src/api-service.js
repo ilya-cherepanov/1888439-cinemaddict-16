@@ -77,12 +77,13 @@ export default class ApiService {
   #adaptFilmToServer = (film) => {
     const adaptedFilm = {
       ...film,
-      ['film_info']: film.filmInfo,
-      ['user_details']: film.userDetails,
+      ['film_info']: { ...film.filmInfo },
+      ['user_details']: { ...film.userDetails },
     };
     adaptedFilm['film_info']['alternative_title'] = film.filmInfo.alternativeTitle;
     adaptedFilm['film_info']['total_rating'] = film.filmInfo.totalRating;
     adaptedFilm['film_info']['age_rating'] = film.filmInfo.ageRating;
+    adaptedFilm['film_info']['release'] = { ...film.filmInfo.release };
     adaptedFilm['film_info']['release']['release_country'] = film.filmInfo.release.country;
 
     adaptedFilm['user_details']['already_watched'] = film.userDetails.alreadyWatched;

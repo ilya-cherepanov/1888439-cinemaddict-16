@@ -97,27 +97,31 @@ export default class FilmDetailsView extends SmartView {
       return;
     }
 
+    this.updateState( { isCommentCreating: true }, true);
     this.#handleCreateComment();
   }
 
-  #showShakeAnimation = () => {
-    const newCommentForm = this.element.querySelector('.film-details__new-comment');
-    newCommentForm.addEventListener('animationend', this.#handleShakeAnimationEnd);
+  #showShakeAnimation = (element) => {
+    element.addEventListener('animationend', this.#handleShakeAnimationEnd);
 
-    newCommentForm.classList.add('shake');
+    element.classList.add('shake');
   }
 
   #setCommentFormActivity = (enabled) => {
     const commentTextarea = this.element.querySelector('.film-details__comment-input');
     commentTextarea.disabled = !enabled;
 
-    const emojiInputs = this.element.querySelectorAll('film-details__emoji-item');
+    const emojiInputs = this.element.querySelectorAll('.film-details__emoji-item');
     emojiInputs.forEach((emojiInput) => { emojiInput.disabled = !enabled; });
   }
 
   #handleDeleteComment = async (evt) => {
     evt.preventDefault();
+    if (this._state.isCommentDeleting) {
+      return;
+    }
 
+    this.updateState({ isCommentDeleting: true }, true);
     const { target } = evt;
     target.textContent = 'Deleting...';
 
@@ -125,7 +129,10 @@ export default class FilmDetailsView extends SmartView {
       await this._callbacks.viewAction(UserAction.REMOVE_COMMENT, UpdateType.POPUP, { film: this._state.film, commentId: target.dataset.id });
     } catch (err) {
       target.textContent = 'Delete';
+      this.#showShakeAnimation(target.closest('.film-details__comment'));
     }
+
+    this.updateState({ isCommentDeleting: false }, true);
   }
 
   #handleCreateComment = async () => {
@@ -135,9 +142,10 @@ export default class FilmDetailsView extends SmartView {
     try {
       await this._callbacks.viewAction(UserAction.ADD_COMMENT, UpdateType.POPUP, { film: this._state.film, comment: this._state.currentComment });
     } catch (err) {
-      this.#showShakeAnimation();
+      this.#showShakeAnimation(this.element.querySelector('.film-details__new-comment'));
     }
 
+    this.updateState({ isCommentCreating: false }, true);
     this.#setCommentFormActivity(true);
   }
 
@@ -148,7 +156,7 @@ export default class FilmDetailsView extends SmartView {
 
   #handleChangeCommentInput = ({ target }) => {
     const newState = { ...this._state };
-    newState.currentComment.comment = he.encode(target.value);
+    newState.currentComment.comment = he.escape(target.value);
 
     this.updateState(newState, true);
   }
@@ -164,11 +172,11 @@ export default class FilmDetailsView extends SmartView {
     this.updateState(newState, false);
   }
 
-  #handleClickControl = (evt) => {
+  #handleClickControl = async (evt) => {
     evt.preventDefault();
     const { target } = evt;
 
-    const filmUpdate = { ...this.film };
+    const filmUpdate = { ...this.film,  userDetails: { ...this.film.userDetails } };
     if (target.classList.contains('film-details__control-button--favorite')) {
       filmUpdate.userDetails.favorite = !this.film.userDetails.favorite;
     } else if (target.classList.contains('film-details__control-button--watchlist')) {
@@ -177,7 +185,7 @@ export default class FilmDetailsView extends SmartView {
       filmUpdate.userDetails.alreadyWatched = !this.film.userDetails.alreadyWatched;
     }
 
-    this._callbacks.viewAction(UserAction.UPDATE_FILM, UpdateType.PATCH, filmUpdate);
+    await this._callbacks.viewAction(UserAction.UPDATE_FILM, UpdateType.PATCH, filmUpdate);
   };
 
   #handleClickClose = (evt) => {
@@ -198,5 +206,7 @@ export default class FilmDetailsView extends SmartView {
       emotion: null,
     },
     scrollPosition: 0,
+    isCommentDeleting: false,
+    isCommentCreating: false,
   })
 }
