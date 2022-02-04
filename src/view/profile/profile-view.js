@@ -3,15 +3,15 @@ import { createProfileTemplate } from './profile-view.tmpl.js';
 
 
 export default class ProfileView extends AbstractView {
-  #films = null;
+  #watchedFilmsCount = null;
 
-  constructor(films) {
+  constructor(watchedFilmsCount) {
     super();
 
-    this.#films = films;
+    this.#watchedFilmsCount = watchedFilmsCount;
   }
 
   get template() {
-    return createProfileTemplate(this.#films);
+    return createProfileTemplate(this.#watchedFilmsCount);
   }
 }

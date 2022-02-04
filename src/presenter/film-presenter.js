@@ -5,8 +5,6 @@ import { Filters } from '../utils/filters.js';
 import { compareByDate, compareByRating } from '../utils/sorting.js';
 import EmptyFilmsView from '../view/empty-films/empty-films-view.js';
 import FilmsView from '../view/films/films-view.js';
-import ProfileView from '../view/profile/profile-view.js';
-import FilmCounterView from '../view/film-counter/film-counter-view.js';
 import ShowMoreView from '../view/show-more/show-more-view.js';
 import SortView from '../view/sort/sort-view.js';
 import FilmCardView from '../view/film-card/film-card-view.js';
@@ -24,14 +22,11 @@ export default class FilmPresenter {
 
   #showMoreView = new ShowMoreView();
   #sortView = null;
-  #profileView = null;
   #filmsView = null;
-  #filmCounterView = null;
   #filmDetailsView = null;
   #loadingFilmsView = new LoadingFilmsView();
   #filmCardsViews = new Map();
 
-  #headerElement = document.querySelector('.header');
   #mainElement = document.querySelector('.main');
 
   constructor(filmsModel, commentsModel, filterModel) {
@@ -74,17 +69,6 @@ export default class FilmPresenter {
     render(this.#mainElement, this.#loadingFilmsView, RenderPosition.BEFOREEND);
   }
 
-  #showProfile = () => {
-    if (this.#profileView === null) {
-      this.#profileView = new ProfileView(this.#filmsModel.films);
-      render(this.#headerElement, this.#profileView, RenderPosition.BEFOREEND);
-    }
-
-    const oldProfileView = this.#profileView;
-    this.#profileView = new ProfileView(this.#filmsModel.films);
-    replace(oldProfileView, this.#profileView);
-  }
-
   #showFilmsContainer = () => {
     this.#filmsView = this.films.length > 0 ? new FilmsView() : new EmptyFilmsView(this.#filterModel.filter);
     render(this.#mainElement, this.#filmsView, RenderPosition.BEFOREEND);
@@ -102,9 +86,7 @@ export default class FilmPresenter {
       return;
     }
 
-    this.#showProfile();
     this.#showFilms();
-    this.#showFilmCounter();
   }
 
   #showFilms = () => {
@@ -144,18 +126,6 @@ export default class FilmPresenter {
     render(container, filmCardView, RenderPosition.BEFOREEND);
   }
 
-  #showFilmCounter = () => {
-    if (this.#filmCounterView === null) {
-      this.#filmCounterView = new FilmCounterView(this.#filmsModel.films.length);
-      const footerStatisticsElement = document.querySelector('.footer__statistics');
-      render(footerStatisticsElement, this.#filmCounterView, RenderPosition.BEFOREEND);
-    }
-
-    const oldFilmCounterView = this.#filmCounterView;
-    this.#filmCounterView = new FilmCounterView(this.#filmsModel.films.length);
-    replace(oldFilmCounterView, this.#filmCounterView);
-  }
-
   #showFilmsPortion = (films) => {
     const filmsListContainer = document.querySelector('.films-list__container');
 
@@ -173,8 +143,8 @@ export default class FilmPresenter {
 
     document.body.classList.add('hide-overflow');
     render(document.body, this.#filmDetailsView, RenderPosition.BEFOREEND);
-    document.addEventListener('keydown', this.#handlePressEsc);
-    document.addEventListener('keydown', this.#handleCtrlEnter);
+    document.addEventListener('keydown', this.#pressEscHandler);
+    document.addEventListener('keydown', this.#pressCtrlEnterHandler);
   }
 
   #clearFilmsList = ({ resetRenderedTaskCount = false, resetSortType = false } = {}) => {
@@ -233,8 +203,8 @@ export default class FilmPresenter {
 
     this.#filmDetailsView.removeElement();
     document.body.classList.remove('hide-overflow');
-    document.removeEventListener('keydown', this.#handlePressEsc);
-    document.removeEventListener('keydown', this.#handleCtrlEnter);
+    document.removeEventListener('keydown', this.#pressEscHandler);
+    document.removeEventListener('keydown', this.#pressCtrlEnterHandler);
 
     this.#filmDetailsView = null;
   }
@@ -252,13 +222,13 @@ export default class FilmPresenter {
     }
   }
 
-  #handlePressEsc = (evt) => {
+  #pressEscHandler = (evt) => {
     if (isEscKey(evt)) {
       this.#closeFilmDetails();
     }
   }
 
-  #handleCtrlEnter = (evt) => {
+  #pressCtrlEnterHandler = (evt) => {
     if (isCtrlEnter(evt) && this.#filmDetailsView) {
       this.#filmDetailsView.initSendComment();
     }
@@ -274,7 +244,7 @@ export default class FilmPresenter {
     }
 
     this.#filmSortType = sortingType;
-    this.#clearFilmsList();
+    this.#clearFilmsList({ resetRenderedTaskCount: true });
     this.#showFilms();
   }
 

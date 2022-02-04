@@ -10,7 +10,7 @@ const countGenres = (films) => {
 
   for (const film of films) {
     for (const genre of film.filmInfo.genre) {
-      if (!Object.prototype.hasOwnProperty.call(genres, genre)) {
+      if (!genres[genre]) {
         genres[genre] = 1;
       } else {
         genres[genre] += 1;

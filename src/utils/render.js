@@ -13,6 +13,10 @@ const render = (container, element, place) => {
   container = container instanceof AbstractView ? container.element : container;
   element = element instanceof AbstractView ? element.element : element;
 
+  if (container === null || element === null) {
+    return;
+  }
+
   switch (place) {
     case RenderPosition.BEFOREBEGIN:
       container.before(element);

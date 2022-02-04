@@ -10,7 +10,7 @@ export default class FilmDetailsView extends SmartView {
 
     this._state = FilmDetailsView.mapFilmDataToState(film, comments);
 
-    this.element.addEventListener('scroll', this.#handleScroll);
+    this.element.addEventListener('scroll', this.#scrollHandler);
     this.setEmojiClickHandler();
     this.setCommentInputHandler();
     this.setDeleteCommentHandler();
@@ -33,7 +33,7 @@ export default class FilmDetailsView extends SmartView {
 
     this.element
       .querySelector('.film-details__close-btn')
-      .addEventListener('click', this.#handleClickClose);
+      .addEventListener('click', this.#clickCloseHandler);
   }
 
   setClickControlsHandler = (handler) => {
@@ -41,20 +41,20 @@ export default class FilmDetailsView extends SmartView {
 
     const controls = this.element.querySelectorAll('.film-details__control-button');
     controls.forEach(
-      (control) => control.addEventListener('click', this.#handleClickControl)
+      (control) => control.addEventListener('click', this.#clickControlHandler)
     );
   }
 
   setEmojiClickHandler = () => {
     const emojiLabels = this.element.querySelectorAll('.film-details__emoji-item');
     emojiLabels.forEach(
-      (emojiLabel) => emojiLabel.addEventListener('change', this.#handleClickEmoji)
+      (emojiLabel) => emojiLabel.addEventListener('change', this.#clickEmojiHandler)
     );
   }
 
   setCommentInputHandler = () => {
     const commentInput = this.element.querySelector('.film-details__comment-input');
-    commentInput.addEventListener('input', this.#handleChangeCommentInput);
+    commentInput.addEventListener('input', this.#changeCommentInputHandler);
   }
 
   setViewActionHandler = (handler) => {
@@ -76,7 +76,7 @@ export default class FilmDetailsView extends SmartView {
   }
 
   restoreHandlers = () => {
-    this.element.addEventListener('scroll', this.#handleScroll);
+    this.element.addEventListener('scroll', this.#scrollHandler);
     this.setEmojiClickHandler();
     this.setCommentInputHandler();
     this.setClickCloseHandler(this._callbacks.clickClose);
@@ -88,7 +88,7 @@ export default class FilmDetailsView extends SmartView {
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
 
     deleteButtons.forEach(
-      (deleteButton) => deleteButton.addEventListener('click', this.#handleDeleteComment)
+      (deleteButton) => deleteButton.addEventListener('click', this.#deleteCommentHandler)
     );
   }
 
@@ -102,7 +102,7 @@ export default class FilmDetailsView extends SmartView {
   }
 
   #showShakeAnimation = (element) => {
-    element.addEventListener('animationend', this.#handleShakeAnimationEnd);
+    element.addEventListener('animationend', this.#shakeAnimationEndHandler);
 
     element.classList.add('shake');
   }
@@ -115,7 +115,7 @@ export default class FilmDetailsView extends SmartView {
     emojiInputs.forEach((emojiInput) => { emojiInput.disabled = !enabled; });
   }
 
-  #handleDeleteComment = async (evt) => {
+  #deleteCommentHandler = async (evt) => {
     evt.preventDefault();
     if (this._state.isCommentDeleting) {
       return;
@@ -124,6 +124,7 @@ export default class FilmDetailsView extends SmartView {
     this.updateState({ isCommentDeleting: true }, true);
     const { target } = evt;
     target.textContent = 'Deleting...';
+    target.disabled = true;
 
     try {
       await this._callbacks.viewAction(UserAction.REMOVE_COMMENT, UpdateType.POPUP, { film: this._state.film, commentId: target.dataset.id });
@@ -132,6 +133,7 @@ export default class FilmDetailsView extends SmartView {
       this.#showShakeAnimation(target.closest('.film-details__comment'));
     }
 
+    target.disabled = false;
     this.updateState({ isCommentDeleting: false }, true);
   }
 
@@ -149,19 +151,19 @@ export default class FilmDetailsView extends SmartView {
     this.#setCommentFormActivity(true);
   }
 
-  #handleShakeAnimationEnd = ({ target }) => {
+  #shakeAnimationEndHandler = ({ target }) => {
     target.classList.remove('shake');
-    target.removeEventListener('animationend', this.#handleShakeAnimationEnd);
+    target.removeEventListener('animationend', this.#shakeAnimationEndHandler);
   }
 
-  #handleChangeCommentInput = ({ target }) => {
+  #changeCommentInputHandler = ({ target }) => {
     const newState = { ...this._state };
     newState.currentComment.comment = he.escape(target.value);
 
     this.updateState(newState, true);
   }
 
-  #handleClickEmoji = ({ target }) => {
+  #clickEmojiHandler = ({ target }) => {
     if (this._state.isCommentCreating) {
       return;
     }
@@ -172,7 +174,7 @@ export default class FilmDetailsView extends SmartView {
     this.updateState(newState, false);
   }
 
-  #handleClickControl = async (evt) => {
+  #clickControlHandler = async (evt) => {
     evt.preventDefault();
     const { target } = evt;
 
@@ -188,13 +190,13 @@ export default class FilmDetailsView extends SmartView {
     await this._callbacks.viewAction(UserAction.UPDATE_FILM, UpdateType.PATCH, filmUpdate);
   };
 
-  #handleClickClose = (evt) => {
+  #clickCloseHandler = (evt) => {
     evt.preventDefault();
 
     this._callbacks.clickClose();
   }
 
-  #handleScroll = ({ target }) => {
+  #scrollHandler = ({ target }) => {
     this._state.scrollPosition = target.scrollTop;
   }
 

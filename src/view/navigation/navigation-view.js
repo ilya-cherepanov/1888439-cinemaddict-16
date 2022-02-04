@@ -27,19 +27,22 @@ export default class NavigationView extends AbstractView {
 
     const filterElements = this.element.querySelectorAll('.main-navigation__item');
     filterElements.forEach(
-      (filterElement) => filterElement.addEventListener('click', this.#handleChangeFilter)
+      (filterElement) => filterElement.addEventListener('click', this.#changeFilterHandler)
     );
 
     const navigationElements = this.element.querySelectorAll('.main-navigation__additional');
     navigationElements.forEach(
-      (navigationElement) => navigationElement.addEventListener('click', this.#handleChangeFilter)
+      (navigationElement) => navigationElement.addEventListener('click', this.#changeFilterHandler)
     );
   }
 
-  #handleChangeFilter = (evt) => {
+  #changeFilterHandler = (evt) => {
     evt.preventDefault();
 
-    switch (evt.target.hash) {
+    const { target } = evt;
+    const linkElement = target.tagName === 'SPAN' ? target.parentElement : target;
+
+    switch (linkElement.hash) {
       case '#all':
         this._callbacks.changeFilter(FilmsFilterType.ALL, NavigationItemsType.FILMS);
         break;

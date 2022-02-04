@@ -1,5 +1,6 @@
 import FilmPresenter from './presenter/film-presenter.js';
 import NavigationPresenter from './presenter/navigation-presenter.js';
+import HeaderFooterPresenter from './presenter/header-footer-presenter.js';
 import FilmsModel from './model/films-model.js';
 import FilterModel from './model/filter-model.js';
 import CommentsModel from './model/comments-model.js';
@@ -15,6 +16,7 @@ const commentsModel = new CommentsModel(apiService);
 const filterModel = new FilterModel();
 
 const moviePresenter = new FilmPresenter(filmsModel, commentsModel, filterModel);
+new HeaderFooterPresenter(filmsModel);
 
 let statisticsView = null;
 

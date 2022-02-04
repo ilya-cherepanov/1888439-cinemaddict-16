@@ -47,7 +47,7 @@ const FilmSortType = {
 
 
 const Api = {
-  AUTHORIZATION_TOKEN: 'adg7723bcls',
+  AUTHORIZATION_TOKEN: 'adg7723bclm',
   END_POINT: 'https://16.ecmascript.pages.academy/cinemaddict',
 };
 
@@ -58,6 +58,13 @@ const StatisticsInterval = {
   WEEK: 'week',
   MONTH: 'month',
   YEAR: 'year',
+};
+
+const ChartColors = {
+  BACKGROUND_COLOR: '#ffe800',
+  HOVER_BACKGROUND_COLOR: '#ffe800',
+  DATALABELS_COLORS: '#ffffff',
+  FONT_COLOR: '#ffffff',
 };
 
 
@@ -71,5 +78,6 @@ export {
   FilmSortType,
   Api,
   BAR_HEIGHT,
-  StatisticsInterval
+  StatisticsInterval,
+  ChartColors
 };

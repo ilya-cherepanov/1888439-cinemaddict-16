@@ -51,12 +51,16 @@ export default class NavigationPresenter {
   }
 
   init = () => {
+    this.#filterModel.add(this.#handleModelNotification);
+    this.#filmsModel.add(this.#handleModelNotification);
+
+    this.#showNavigation();
+  }
+
+  #showNavigation = () => {
     const prevNavigationView = this.#navigationView;
     this.#navigationView = new NavigationView(this.filters, this.#navigationItemType);
     this.#navigationView.setFilterChangeHandler(this.#handleFilterChange);
-
-    this.#filterModel.add(this.#handleModelNotification);
-    this.#filmsModel.add(this.#handleModelNotification);
 
     if (prevNavigationView === null) {
       render(this.#containerElement, this.#navigationView, RenderPosition.AFTERBEGIN);
@@ -72,7 +76,7 @@ export default class NavigationPresenter {
       this.#isLoading = false;
     }
 
-    this.init();
+    this.#showNavigation();
   }
 
   #handleNavigationChange = () => {

@@ -2,7 +2,7 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import SmartView from '../smart-view.js';
 import { createStatisticsTemplate } from './statistics-view.tmpl.js';
-import { StatisticsInterval, BAR_HEIGHT } from '../../constants.js';
+import { StatisticsInterval, BAR_HEIGHT, ChartColors } from '../../constants.js';
 import { filterByTimeInterval, countGenres, getTotalDuration, getTopGenre, sortGenres } from '../../utils/statistics.js';
 
 
@@ -94,7 +94,7 @@ export default class StatisticsView extends SmartView {
   #setChangeFilterHandler = () => {
     const filterRadios = this.element.querySelectorAll('.statistic__filters-input');
 
-    filterRadios.forEach((filterRadio) => filterRadio.addEventListener('input', this.#handleChangeFilter));
+    filterRadios.forEach((filterRadio) => filterRadio.addEventListener('input', this.#changeFilterHandler));
   }
 
   #setChart = () => {
@@ -115,8 +115,8 @@ export default class StatisticsView extends SmartView {
         labels: labels,
         datasets: [{
           data: data,
-          backgroundColor: '#ffe800',
-          hoverBackgroundColor: '#ffe800',
+          backgroundColor: ChartColors.BACKGROUND_COLOR,
+          hoverBackgroundColor: ChartColors.HOVER_BACKGROUND_COLOR,
           anchor: 'start',
           barThickness: 24,
         }],
@@ -128,7 +128,7 @@ export default class StatisticsView extends SmartView {
             font: {
               size: 20,
             },
-            color: '#ffffff',
+            color: ChartColors.DATALABELS_COLORS,
             anchor: 'start',
             align: 'start',
             offset: 40,
@@ -137,7 +137,7 @@ export default class StatisticsView extends SmartView {
         scales: {
           yAxes: [{
             ticks: {
-              fontColor: '#ffffff',
+              fontColor: ChartColors.FONT_COLOR,
               padding: 100,
               fontSize: 20,
             },
@@ -167,7 +167,7 @@ export default class StatisticsView extends SmartView {
     });
   }
 
-  #handleChangeFilter = ({ target }) => {
+  #changeFilterHandler = ({ target }) => {
     let stateUpdate = null;
 
     switch (target.value) {

@@ -20,11 +20,11 @@ export default class SortView extends AbstractView {
 
     const sortButtons = this.element.querySelectorAll('.sort__button');
     sortButtons.forEach(
-      (sortButton) => sortButton.addEventListener('click', this.#handleSortingChange)
+      (sortButton) => sortButton.addEventListener('click', this.#changeSortingHandler)
     );
   }
 
-  #handleSortingChange = (evt) => {
+  #changeSortingHandler = (evt) => {
     evt.preventDefault();
 
     this._callbacks.sortHandler(evt.target.dataset.sortType);

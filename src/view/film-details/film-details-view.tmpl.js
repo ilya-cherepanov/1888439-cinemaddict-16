@@ -15,7 +15,12 @@ const getFilmButtonActiveClass = (status) => (
 const createGenresTemplate = (genres) => {
   const genresList = genres.map((genre) => `<span class="film-details__genre">${genre}</span>`);
 
-  return genresList.join('\n');
+  return (
+    `<td class="film-details__term">Genre${genres.length > 1 ? 's': ''}</td>
+    <td class="film-details__cell">
+      ${genresList.join('\n')}
+    </td>`
+  );
 };
 
 
@@ -105,10 +110,7 @@ const createFilmDetailsTemplate = (film, comments, currentComment) => {
                 <td class="film-details__cell">${filmInfo.release.country}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
-                <td class="film-details__cell">
-                  ${createGenresTemplate(filmInfo.genre)}
-                </td>
+                ${createGenresTemplate(filmInfo.genre)}
               </tr>
             </table>
 
