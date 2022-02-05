@@ -25,12 +25,20 @@ export default class HeaderFooterPresenter {
 
   init = () => {
     this.#filmsModel.add(this.#handleModelNotification);
+
+    this.#showFilmCounter();
   }
 
   #showFilmCounter = () => {
-    this.#filmCounterView = new FilmCounterView(this.#filmsModel.films.length);
+    this.#filmCounterView = new FilmCounterView(0);
 
     render(this.#footerStatisticsElement, this.#filmCounterView, RenderPosition.BEFOREEND);
+  }
+
+  #updateFilmCounter = () => {
+    const oldFilmCounterView = this.#filmCounterView;
+    this.#filmCounterView = new FilmCounterView(this.#filmsModel.films.length);
+    replace(oldFilmCounterView, this.#filmCounterView);
   }
 
   #showProfile = () => {
@@ -63,14 +71,10 @@ export default class HeaderFooterPresenter {
     replace(oldProfileView, this.#profileView);
   }
 
-  #showContent = () => {
-    this.#showFilmCounter();
-    this.#showProfile();
-  }
-
   #handleModelNotification = (updateType) => {
     if (updateType === UpdateType.INIT) {
-      this.#showContent();
+      this.#updateFilmCounter();
+      this.#showProfile();
       return;
     }
 
